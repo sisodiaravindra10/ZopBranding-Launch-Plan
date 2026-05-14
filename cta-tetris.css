@@ -1,0 +1,106 @@
+/* ============================================================================
+   CTA-TETRIS · shared styles for the .final CTA section with the self-playing
+   Tetris loop on the right. Used site-wide so every page's closing CTA shares
+   the same layout (homepage, product pages, marketing pages, etc.). Per-page
+   only the heading/body/CTAs/stats text differs.
+   ============================================================================ */
+
+/* Stats below the CTA buttons, sits inside the left column */
+.final-stats.final-stats--inline{
+  margin-top:32px;
+  border-left:0;
+  padding-left:0;
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0,1fr));
+  gap:20px;
+}
+.final-stats.final-stats--inline > div{
+  display:flex; flex-direction:column; gap:6px;
+  padding-top:16px;
+  /* Hairline divider removed per design direction · CTA stats now sit
+     as plain stacked cells with no dividing line above each. */
+  font-size:13px; line-height:1.45;
+  color:rgba(240,235,219,.78);
+}
+.final-stats.final-stats--inline > div strong{
+  font-family:var(--mono, ui-monospace, monospace);
+  font-size:18px; font-weight:600;
+  color:#F0EBDB;
+  letter-spacing:-.01em;
+}
+@media (max-width:780px){
+  .final-stats.final-stats--inline{
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+}
+
+/* TETRIS · transparent overlay; blocks fall from top to bottom of the .final
+   section, occupying the right portion. No frame, no canvas background. */
+.final{ position:relative; overflow:hidden; }
+
+/* Defensive nuke · kill any hairline rendered at the top edge of the final
+   CTA slab. Multi-pronged because the source has been hard to pinpoint
+   across pages: kills border/outline/box-shadow on .final itself, wipes
+   its ::before / ::after content, kills the previous section's
+   border-bottom + ::after (via :has where supported), and explicitly
+   names the FAQ section (the most common predecessor on the homepage). */
+section.final,
+section.final::before,
+section.final::after{
+  border-top:0 !important;
+  border-bottom:0 !important;
+  box-shadow:none !important;
+  outline:none !important;
+}
+section.final::before,
+section.final::after{ content:none !important; background:transparent !important; height:0 !important; }
+section.final > .container,
+section.final > .container::before,
+section.final > .container::after{ border-top:0 !important; box-shadow:none !important; }
+section.final + *,
+section.faq + section.final,
+.section + section.final,
+section + section.final{ border-top:0 !important; }
+/* Also kill border-bottom on the section immediately preceding .final */
+*:has(+ section.final),
+*:has(+ section.final)::before,
+*:has(+ section.final)::after{
+  border-bottom:0 !important;
+  box-shadow:none !important;
+}
+/* Belt-and-braces · the FAQ section is the canonical predecessor of
+   .final on the homepage. Explicitly kill its trailing borders +
+   pseudo-element so :has-unsupported browsers also lose the hairline. */
+section#faq,
+section#faq::after,
+section.section + section.final,
+section.section:has(+ section.final){
+  border-bottom:0 !important;
+  box-shadow:none !important;
+}
+section#faq::after{ content:none !important; height:0 !important; background:transparent !important; }
+/* The FAQ accordion's last details · border-bottom already 0 in chrome.css,
+   but lock it in case page-specific styles re-introduce it. */
+section#faq .faq-list > details:last-of-type{ border-bottom:0 !important; }
+.final .container{ position:relative; z-index:2; }
+.final .final-aside{
+  border-left:0; padding-left:0;
+  min-height:1px;
+}
+#tet-canvas{
+  position:absolute;
+  top:0; right:0; bottom:0;
+  width:46%;
+  height:100%;
+  background:transparent;
+  image-rendering:pixelated;
+  pointer-events:none;
+  z-index:1;
+}
+@media (max-width:980px){
+  #tet-canvas{ width:38%; opacity:.35; }
+}
+@media (max-width:780px){
+  #tet-canvas{ width:100%; opacity:.18; }
+}

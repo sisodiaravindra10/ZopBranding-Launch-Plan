@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>D7 · Close still 1080x1080</title>
+<link rel="stylesheet" href="kit.css">
+<style>
+  .canvas { width: 1080px; height: 1080px; background: var(--ink-d); color: var(--cream); padding: 64px; display: flex; flex-direction: column; }
+  .top { display: flex; justify-content: space-between; align-items: center; }
+  .top .label { font-family: var(--mono); font-weight: 500; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g-600-d); display: inline-flex; align-items: center; gap: 12px; }
+  .top .label::before { content: ''; width: 10px; height: 10px; background: var(--zop-orange); }
+  .top .pg { font-family: var(--mono); font-weight: 500; font-size: 12px; letter-spacing: 0.16em; color: var(--g-600-d); text-transform: uppercase; }
+
+  .stage { flex: 1; display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: center; margin-top: 24px; }
+
+  /* Tetris frozen frame · 10 wide x 8 tall · simpler grid for square */
+  .tetris { width: 100%; aspect-ratio: 10/8; display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(8, 1fr); gap: 2px; }
+  .tetris .b { background: #18181c; }
+  .tetris .o { background: var(--zop-orange); }
+  .tetris .n { background: var(--zop-blue); }
+  .tetris .g { background: var(--zop-green); }
+  .tetris .c { background: var(--cream); }
+
+  .copy { display: flex; flex-direction: column; gap: 36px; }
+  .copy .h { font-family: var(--font); font-weight: 600; font-size: 96px; line-height: 0.96; letter-spacing: -0.04em; color: var(--cream); }
+  .copy .h em { font-style: normal; color: var(--zop-orange); }
+  .copy .sub { font-family: var(--mono); font-weight: 500; font-size: 16px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--g-600-d); line-height: 1.55; }
+  .copy .sub b { color: var(--cream); }
+  .copy .btn { font-family: var(--font-body); font-weight: 500; font-size: 16px; padding: 16px 22px; background: var(--cream); color: var(--ink); display: inline-flex; align-items: center; gap: 14px; letter-spacing: -0.01em; width: fit-content; border: 1px solid var(--cream); }
+
+  .meta-foot { display: flex; justify-content: space-between; align-items: flex-end; padding-top: 24px; border-top: 1px solid var(--line-d); }
+  .meta-foot .l { font-family: var(--mono); font-weight: 500; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g-600-d); }
+  .wm { font-family: var(--font); font-weight: 600; font-size: 22px; letter-spacing: -0.03em; color: var(--cream); }
+  .wm .dot { color: var(--zop-orange); }
+</style></head>
+<body>
+<!-- BRAND_DEFS_START -->
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- Sourced verbatim from /Users/zop.dev/Downloads/ZopDev Website Final R copy/index.html · lines 7905-7929 -->
+    <symbol id="mark-zopdev" viewBox="0 0 32 32">
+      <rect x="0" y="0" width="16" height="16" fill="#2A4494"/>
+      <rect x="16" y="0" width="16" height="16" fill="#F58549"/>
+      <rect x="16" y="16" width="16" height="16" fill="#7FB236"/>
+    </symbol>
+    <symbol id="mark-zopnight" viewBox="0 0 32 32">
+      <rect x="0" y="0" width="32" height="32" fill="#2A4494"/>
+      <circle cx="16" cy="16" r="8" fill="#FFFFFF"/>
+    </symbol>
+    <symbol id="mark-zopday" viewBox="0 0 32 32">
+      <rect x="0" y="0" width="32" height="32" fill="#F58549"/>
+      <circle cx="16" cy="16" r="8" fill="#FFFFFF"/>
+    </symbol>
+    <symbol id="mark-zopcloud" viewBox="0 0 32 32">
+      <rect x="0" y="0" width="32" height="32" fill="#2A4494"/>
+      <rect x="12" y="8"  width="8"  height="6"  fill="#FFFFFF"/>
+      <rect x="6"  y="14" width="20" height="10" fill="#FFFFFF"/>
+    </symbol>
+    <symbol id="logo-zopdev" viewBox="0 0 715 276">
+      <path d="M7.452 229V201.784L63.504 137.308V134.716H9.072V115.6H85.86V142.816L29.808 207.292V209.884H86.184V229H7.452ZM136.786 231.268C128.794 231.268 121.612 229.648 115.24 226.408C108.868 223.168 103.846 218.47 100.174 212.314C96.5022 206.158 94.6662 198.76 94.6662 190.12V187.528C94.6662 178.888 96.5022 171.49 100.174 165.334C103.846 159.178 108.868 154.48 115.24 151.24C121.612 148 128.794 146.38 136.786 146.38C144.778 146.38 151.96 148 158.332 151.24C164.704 154.48 169.726 159.178 173.398 165.334C177.07 171.49 178.906 178.888 178.906 187.528V190.12C178.906 198.76 177.07 206.158 173.398 212.314C169.726 218.47 164.704 223.168 158.332 226.408C151.96 229.648 144.778 231.268 136.786 231.268ZM136.786 213.124C143.05 213.124 148.234 211.126 152.338 207.13C156.442 203.026 158.494 197.194 158.494 189.634V188.014C158.494 180.454 156.442 174.676 152.338 170.68C148.342 166.576 143.158 164.524 136.786 164.524C130.522 164.524 125.338 166.576 121.234 170.68C117.13 174.676 115.078 180.454 115.078 188.014V189.634C115.078 197.194 117.13 203.026 121.234 207.13C125.338 211.126 130.522 213.124 136.786 213.124ZM192.888 261.4V148.648H212.976V158.368H215.892C217.728 155.236 220.59 152.482 224.478 150.106C228.366 147.622 233.928 146.38 241.164 146.38C247.644 146.38 253.638 148 259.146 151.24C264.654 154.372 269.082 159.016 272.43 165.172C275.778 171.328 277.452 178.78 277.452 187.528V190.12C277.452 198.868 275.778 206.32 272.43 212.476C269.082 218.632 264.654 223.33 259.146 226.57C253.638 229.702 247.644 231.268 241.164 231.268C236.304 231.268 232.2 230.674 228.852 229.486C225.612 228.406 222.966 227.002 220.914 225.274C218.97 223.438 217.404 221.602 216.216 219.766H213.3V261.4H192.888ZM235.008 213.448C241.38 213.448 246.618 211.45 250.722 207.454C254.934 203.35 257.04 197.41 257.04 189.634V188.014C257.04 180.238 254.934 174.352 250.722 170.356C246.51 166.252 241.272 164.2 235.008 164.2C228.744 164.2 223.506 166.252 219.294 170.356C215.082 174.352 212.976 180.238 212.976 188.014V189.634C212.976 197.41 215.082 203.35 219.294 207.454C223.506 211.45 228.744 213.448 235.008 213.448ZM287.446 229V210.208H302.35V134.392H287.446V115.6H334.102C349.33 115.6 360.886 119.488 368.77 127.264C376.762 134.932 380.758 146.38 380.758 161.608V182.992C380.758 198.22 376.762 209.722 368.77 217.498C360.886 225.166 349.33 229 334.102 229H287.446ZM323.734 209.56H334.426C343.066 209.56 349.384 207.292 353.38 202.756C357.376 198.22 359.374 191.848 359.374 183.64V160.96C359.374 152.644 357.376 146.272 353.38 141.844C349.384 137.308 343.066 135.04 334.426 135.04H323.734V209.56ZM430.981 231.268C422.989 231.268 415.915 229.594 409.759 226.246C403.711 222.79 398.959 217.984 395.503 211.828C392.155 205.564 390.481 198.22 390.481 189.796V187.852C390.481 179.428 392.155 172.138 395.503 165.982C398.851 159.718 403.549 154.912 409.597 151.564C415.645 148.108 422.665 146.38 430.657 146.38C438.541 146.38 445.399 148.162 451.231 151.726C457.063 155.182 461.599 160.042 464.839 166.306C468.079 172.462 469.699 179.644 469.699 187.852V194.818H411.217C411.433 200.326 413.485 204.808 417.373 208.264C421.261 211.72 426.013 213.448 431.629 213.448C437.353 213.448 441.565 212.206 444.265 209.722C446.965 207.238 449.017 204.484 450.421 201.46L467.107 210.208C465.595 213.016 463.381 216.094 460.465 219.442C457.657 222.682 453.877 225.49 449.125 227.866C444.373 230.134 438.325 231.268 430.981 231.268ZM411.379 179.59H448.963C448.531 174.946 446.641 171.22 443.293 168.412C440.053 165.604 435.787 164.2 430.495 164.2C424.987 164.2 420.613 165.604 417.373 168.412C414.133 171.22 412.135 174.946 411.379 179.59ZM497.482 229L471.886 148.648H493.594L512.224 214.096H515.14L533.77 148.648H555.478L529.882 229H497.482Z" fill="currentColor"/>
+      <rect x="537" y="0" width="89" height="89" fill="#2A4494"/>
+      <rect x="626" y="0" width="89" height="89" fill="#F58549"/>
+      <rect x="626" y="89" width="89" height="89" fill="#7FB236"/>
+    </symbol>
+  </defs>
+</svg>
+<!-- BRAND_DEFS_END -->
+<div class="canvas">
+  <span class="sig br"></span>
+  <div class="top">
+    <span class="label">D7 · Close · still 1080</span>
+    <span class="pg">zop.dev/signin</span>
+  </div>
+
+  <div class="stage">
+    <div class="tetris">
+      <!-- Row 1 -->
+      <div class="b"></div><div class="b"></div><div class="b"></div><div class="o"></div><div class="o"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div>
+      <!-- Row 2 -->
+      <div class="b"></div><div class="b"></div><div class="b"></div><div class="o"></div><div class="o"></div><div class="n"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div>
+      <!-- Row 3 -->
+      <div class="b"></div><div class="g"></div><div class="g"></div><div class="g"></div><div class="g"></div><div class="n"></div><div class="b"></div><div class="c"></div><div class="b"></div><div class="b"></div>
+      <!-- Row 4 -->
+      <div class="b"></div><div class="g"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="n"></div><div class="b"></div><div class="c"></div><div class="c"></div><div class="b"></div>
+      <!-- Row 5 -->
+      <div class="o"></div><div class="g"></div><div class="b"></div><div class="n"></div><div class="b"></div><div class="n"></div><div class="b"></div><div class="b"></div><div class="c"></div><div class="b"></div>
+      <!-- Row 6 -->
+      <div class="o"></div><div class="o"></div><div class="b"></div><div class="n"></div><div class="n"></div><div class="n"></div><div class="o"></div><div class="b"></div><div class="b"></div><div class="b"></div>
+      <!-- Row 7 -->
+      <div class="o"></div><div class="o"></div><div class="g"></div><div class="g"></div><div class="b"></div><div class="b"></div><div class="o"></div><div class="o"></div><div class="b"></div><div class="b"></div>
+      <!-- Row 8 — full -->
+      <div class="c"></div><div class="o"></div><div class="g"></div><div class="g"></div><div class="n"></div><div class="n"></div><div class="o"></div><div class="o"></div><div class="g"></div><div class="c"></div>
+    </div>
+
+    <div class="copy">
+      <h2 class="h">Bring your <em>cloud.</em></h2>
+      <div class="sub">Read-only<br><b>Five minutes</b><br>zop.dev/signin</div>
+      <a class="btn">Start free →</a>
+    </div>
+  </div>
+
+  <div class="meta-foot">
+    <svg class="logo-zopdev" data-size="sm" viewBox="0 0 715 276" style="color: var(--cream);" aria-label="ZopDev"><use href="#logo-zopdev"/></svg>
+    <span class="l">D7 · close · brand launch 2026</span>
+  </div>
+</div></body></html>

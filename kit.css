@@ -1,0 +1,120 @@
+/* ZopDev launch week · brand tokens
+   Mirrored from homepage-chrome.css (lines 24-26). Single source of truth.
+   --font  = Space Grotesk (display + headings)
+   --font-body = Inter (body prose + tiny UI labels)
+   --mono  = Space Grotesk (uppercase data + meta labels — yes, same as --font)
+   JetBrains Mono is intentionally NOT used. The live site loads it for legacy
+   reasons but no font-family rule on zop.dev points at it. */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Brand */
+  --zop-orange: #F58549;
+  --zop-blue:   #2A4494;
+  --zop-green:  #7FB236;
+
+  /* Surfaces — matched to index.html lines 65-66 */
+  --paper: #FAF7EC;
+  --ink-d: #0F0F12;          /* dark surface */
+
+  /* Text */
+  --ink:   #0F0F12;          /* on light · matches site --ink */
+  --cream: #F0EBDB;          /* on dark · matches site --g-50 */
+  --line:  #D9D3BF;          /* hairline on light · matches site --line */
+  --line-d:#2e2e33;          /* hairline on dark */
+  --g-500: #707070;
+  --g-600: #525252;
+  --g-600-d: #B8B0A0;
+  --g-700: #2a2a2a;
+
+  /* Type stack — mirrors homepage-chrome.css :root */
+  --font:      'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono:      'Space Grotesk', system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0 !important; }
+
+html, body {
+  background: #1a1a1f;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+  letter-spacing: -0.003em;
+}
+
+/* ── Canvas ── */
+.canvas {
+  position: relative;
+  overflow: hidden;
+  display: block;
+}
+.canvas.paper { background: var(--paper); color: var(--ink); }
+.canvas.dark  { background: var(--ink-d); color: var(--cream); }
+
+/* ── Type ── */
+.head     { font-family: var(--font); font-weight: 600; letter-spacing: -0.025em; line-height: 1.0; }
+.head-tight { font-family: var(--font); font-weight: 700; letter-spacing: -0.04em; line-height: 0.95; }
+.body     { font-family: var(--font-body); font-weight: 400; letter-spacing: -0.003em; line-height: 1.5; }
+.mono     { font-family: var(--mono); font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px; }
+.mono-num { font-family: var(--mono); font-weight: 600; letter-spacing: -0.04em; line-height: 0.9; }
+
+/* ── Signature 10x10 orange square, 32px inset ── */
+.sig {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--zop-orange);
+}
+.sig.bl { bottom: 32px; left: 32px; }
+.sig.br { bottom: 32px; right: 32px; }
+.sig.tl { top: 32px; left: 32px; }
+.sig.tr { top: 32px; right: 32px; }
+
+/* ── Crosshairs (premium detail) ── */
+.cross {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  color: var(--line);
+}
+.canvas.dark .cross { color: var(--line-d); }
+.cross::before, .cross::after {
+  content: '';
+  position: absolute;
+  background: currentColor;
+}
+.cross::before { left: 0; right: 0; top: 50%; height: 1px; transform: translateY(-0.5px); }
+.cross::after  { top: 0; bottom: 0; left: 50%; width: 1px; transform: translateX(-0.5px); }
+
+/* ── Hairline rule ── */
+.rule { width: 100%; height: 1px; background: var(--line); border: 0; display: block; }
+.canvas.dark .rule { background: var(--line-d); }
+
+/* ── Wordmark · canonical lockup ──
+   Use .logo-zopdev as the SVG container. The path uses fill="currentColor"
+   so it picks up whatever text color the parent sets. Three brand-color
+   squares on the right are baked into the SVG and never change. */
+.logo-zopdev { display: inline-block; vertical-align: middle; width: auto; }
+.logo-zopdev[data-size="sm"]  { height: 22px; }
+.logo-zopdev[data-size="md"]  { height: 36px; }
+.logo-zopdev[data-size="lg"]  { height: 64px; }
+.logo-zopdev[data-size="xl"]  { height: 96px; }
+.logo-zopdev[data-size="2xl"] { height: 180px; }
+
+/* ── Product marks · canonical SVGs ── */
+.mark-prod { display: inline-block; vertical-align: middle; width: auto; height: 40px; }
+
+/* ── Legacy wordmark · only for URL contexts (not the company brand) ── */
+.wm { font-family: var(--font); font-weight: 700; letter-spacing: -0.035em; display: inline-flex; align-items: baseline; }
+.wm .dot { color: var(--zop-orange); }
+
+/* ── Mono label with orange leading square ── */
+.label-with-sq { display: inline-flex; align-items: center; gap: 10px; font-family: var(--mono); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+.label-with-sq::before { content: ''; width: 10px; height: 10px; background: var(--zop-orange); }
+
+/* ── Sub-brand chips ── */
+.chip-night { color: var(--zop-blue); }
+.chip-day   { color: var(--zop-orange); }
+.chip-cloud { color: var(--zop-green); }
