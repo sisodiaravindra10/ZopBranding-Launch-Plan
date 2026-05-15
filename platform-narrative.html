@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>ZopDev · Platform narrative · the pivot</title>
+<link rel="stylesheet" href="kit.css">
+<link rel="stylesheet" href="cta-tetris.css">
+<style>
+  html, body { height: 100%; overflow: hidden; background: var(--ink-d); }
+  .deck { display: flex; height: 100vh; overflow-x: scroll; overflow-y: hidden; scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .deck::-webkit-scrollbar { display: none; }
+  .slide { flex: 0 0 100vw; width: 100vw; height: 100vh; scroll-snap-align: center; scroll-snap-stop: always; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 56px 80px; }
+  .slide.paper { background: var(--paper); color: var(--ink); }
+  .slide.dark  { background: var(--ink-d); color: var(--cream); }
+
+  .strip { display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+  .strip .l, .strip .r { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; }
+  .slide.paper .strip .l, .slide.paper .strip .r { color: var(--g-600); }
+  .slide.dark  .strip .l, .slide.dark  .strip .r { color: var(--g-600-d); }
+  .strip .l { display: inline-flex; align-items: center; gap: 12px; }
+  .strip .l::before { content: ''; width: 10px; height: 10px; background: var(--zop-orange); }
+
+  .body { flex: 1; display: flex; min-height: 0; padding: 24px 0; }
+
+  /* Typography */
+  .ev { font-family: var(--mono); font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+  .ev::before { content: ''; width: 12px; height: 12px; background: var(--zop-orange); }
+  .slide.paper .ev { color: var(--g-600); }
+  .slide.dark .ev { color: var(--g-600-d); }
+  .h1 { font-family: var(--font); font-weight: 700; font-size: clamp(80px, 9vw, 180px); line-height: 0.92; letter-spacing: -0.045em; }
+  .h2 { font-family: var(--font); font-weight: 700; font-size: clamp(56px, 6.4vw, 112px); line-height: 0.96; letter-spacing: -0.045em; }
+  .h3 { font-family: var(--font); font-weight: 600; font-size: clamp(32px, 3.6vw, 56px); line-height: 1.05; letter-spacing: -0.03em; }
+  .sub { font-family: var(--font); font-weight: 500; font-size: clamp(22px, 2.2vw, 34px); line-height: 1.25; letter-spacing: -0.025em; }
+  em { font-style: normal; color: var(--zop-orange); }
+
+  /* Cover */
+  .cover { display: flex; flex-direction: column; gap: 32px; align-items: flex-start; max-width: 1400px; margin: auto 0; }
+
+  /* Problem surface · stitched-tool grid */
+  .problem-block { display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; width: 100%; height: 100%; }
+  .problem-block .left { display: flex; flex-direction: column; gap: 28px; }
+  .problem-block .tool-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(5, 1fr); gap: 10px; }
+  .problem-block .tool { padding: 12px 14px; border: 1px solid var(--line-d); display: flex; flex-direction: column; gap: 4px; background: rgba(255,255,255,0.02); }
+  .problem-block .tool .k { font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g-600-d); }
+  .problem-block .tool .n { font-family: var(--font); font-weight: 600; font-size: 16px; letter-spacing: -0.02em; color: var(--cream); }
+  .problem-block .tool.warn { border-color: var(--zop-orange); }
+  .problem-block .tool.warn .n { color: var(--zop-orange); }
+  .problem-block .stat-strip { padding: 22px 26px; border: 1px solid var(--line-d); display: flex; justify-content: space-between; align-items: baseline; margin-top: auto; }
+  .problem-block .stat-strip .num { font-family: var(--font); font-weight: 700; font-size: 64px; letter-spacing: -0.04em; color: var(--cream); }
+  .problem-block .stat-strip .num em { color: var(--zop-orange); }
+  .problem-block .stat-strip .label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g-600-d); text-align: right; max-width: 220px; line-height: 1.4; }
+
+  /* Misframe */
+  .misframe { display: flex; flex-direction: column; gap: 36px; max-width: 1400px; margin: auto 0; }
+  .misframe .strike { font-family: var(--font); font-weight: 500; font-size: 32px; line-height: 1.3; letter-spacing: -0.025em; color: var(--g-500); text-decoration: line-through; max-width: 1000px; }
+  .misframe .pivot { font-family: var(--font); font-weight: 700; font-size: clamp(48px, 5.6vw, 88px); line-height: 1.05; letter-spacing: -0.04em; max-width: 1100px; border-left: 6px solid var(--zop-orange); padding-left: 32px; }
+
+  /* Tetris extended · 4 panels */
+  .tetris-extended { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 18px; width: 100%; height: 100%; }
+  .tetris-extended .panel { border: 1px solid var(--line-d); padding: 22px; display: flex; flex-direction: column; gap: 14px; background: rgba(255,255,255,0.02); }
+  .tetris-extended .panel .k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--zop-orange); }
+  .tetris-extended .panel .meaning { font-family: var(--font); font-weight: 700; font-size: 28px; line-height: 1.05; letter-spacing: -0.025em; color: var(--cream); }
+  .tetris-extended .panel .product { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g-600-d); }
+  .tetris-extended .panel .grid-mini { flex: 1; display: grid; grid-template-columns: repeat(6, 1fr); grid-template-rows: repeat(8, 1fr); gap: 2px; margin-top: 8px; }
+  .tetris-extended .panel .grid-mini span { background: #18181c; }
+  .tetris-extended .panel .grid-mini span.o { background: var(--zop-orange); }
+  .tetris-extended .panel .grid-mini span.n { background: var(--zop-blue); }
+  .tetris-extended .panel .grid-mini span.g { background: var(--zop-green); }
+  .tetris-extended .panel .grid-mini span.c { background: var(--cream); }
+
+  /* ZopNight one-stop */
+  .night-block { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; width: 100%; height: 100%; align-items: center; }
+  .night-block .left { display: flex; flex-direction: column; gap: 28px; }
+  .night-block .timeline { display: flex; flex-direction: column; }
+  .night-block .timeline .row { display: grid; grid-template-columns: 80px 1fr; gap: 24px; padding: 18px 0; border-bottom: 1px solid var(--line-d); align-items: baseline; }
+  .night-block .timeline .row:last-child { border-bottom: 0; }
+  .night-block .timeline .row .t { font-family: var(--mono); font-weight: 600; font-size: 18px; letter-spacing: 0.04em; color: var(--zop-orange); }
+  .night-block .timeline .row .e { font-family: var(--font); font-weight: 500; font-size: 22px; letter-spacing: -0.02em; color: var(--cream); line-height: 1.3; }
+  .night-block .timeline .row .e em { color: var(--zop-orange); }
+
+  /* Only platform · comparison */
+  .only-platform { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; width: 100%; height: 100%; }
+  .only-platform .col { display: flex; flex-direction: column; gap: 18px; }
+  .only-platform .col .k { font-family: var(--mono); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; }
+  .only-platform .col.before .k { color: var(--g-600-d); }
+  .only-platform .col.after .k  { color: var(--zop-orange); }
+  .only-platform .col .name { font-family: var(--font); font-weight: 700; font-size: 40px; letter-spacing: -0.03em; color: var(--cream); line-height: 1.0; }
+  .only-platform .col.before .tools { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; align-content: start; }
+  .only-platform .col.before .tool { padding: 9px 12px; border: 1px solid var(--line-d); font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--g-600-d); display: flex; justify-content: space-between; }
+  .only-platform .col.before .tool .what { color: rgba(184,176,160,0.55); font-size: 9px; }
+  .only-platform .col.after .canvas-box { flex: 1; border: 1px solid var(--zop-orange); padding: 36px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 28px; background: rgba(245,133,73,0.04); }
+  .only-platform .col.after .canvas-box .lockup { width: 280px; height: auto; color: var(--cream); }
+  .only-platform .col.after .canvas-box .tagline { font-family: var(--font); font-weight: 700; font-size: 32px; letter-spacing: -0.03em; color: var(--cream); text-align: center; }
+  .only-platform .col.after .canvas-box .sub { font-family: var(--mono); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g-600-d); text-align: center; }
+
+  /* Sell as platform · 3-row framework */
+  .framework { display: flex; flex-direction: column; max-width: 1400px; margin: auto 0; }
+  .framework .row { padding: 36px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 60px 1fr 1fr; gap: 32px; align-items: baseline; }
+  .slide.dark .framework .row { border-bottom-color: var(--line-d); }
+  .framework .row:last-child { border-bottom: 0; }
+  .framework .row .n { font-family: var(--mono); font-weight: 600; font-size: 18px; letter-spacing: 0.14em; color: var(--zop-orange); }
+  .framework .row .strike { font-family: var(--font); font-weight: 500; font-size: 32px; line-height: 1.2; letter-spacing: -0.025em; text-decoration: line-through; }
+  .slide.paper .framework .row .strike { color: var(--g-500); }
+  .slide.dark  .framework .row .strike { color: var(--g-600-d); }
+  .framework .row .pivot { font-family: var(--font); font-weight: 700; font-size: 38px; line-height: 1.15; letter-spacing: -0.03em; }
+  .framework .row .pivot em { color: var(--zop-orange); }
+
+  /* Action list */
+  .action { display: flex; flex-direction: column; gap: 24px; max-width: 1400px; margin: auto 0; }
+  .action .action-head { font-family: var(--font); font-weight: 700; font-size: clamp(56px, 6.4vw, 112px); line-height: 0.96; letter-spacing: -0.045em; }
+  .action .actions { display: flex; flex-direction: column; }
+  .action .actions .a-row { display: grid; grid-template-columns: 60px 1fr 240px; gap: 28px; padding: 22px 0; border-bottom: 1px solid currentColor; align-items: baseline; }
+  .slide.paper .action .actions .a-row { border-bottom-color: var(--line); }
+  .slide.dark  .action .actions .a-row { border-bottom-color: var(--line-d); }
+  .action .actions .a-row:last-child { border-bottom: 0; }
+  .action .actions .a-row .n { font-family: var(--mono); font-weight: 600; font-size: 18px; letter-spacing: 0.14em; color: var(--zop-orange); }
+  .action .actions .a-row .what { font-family: var(--font); font-weight: 600; font-size: 26px; line-height: 1.25; letter-spacing: -0.025em; }
+  .action .actions .a-row .who { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; text-align: right; }
+  .slide.paper .action .actions .a-row .who { color: var(--g-600); }
+  .slide.dark  .action .actions .a-row .who { color: var(--g-600-d); }
+
+  /* End slide */
+  .end-stack { display: flex; flex-direction: column; gap: 32px; align-items: center; text-align: center; max-width: 1100px; margin: auto 0; }
+  .end-stack .h1 { color: var(--cream); }
+  .end-stack .h1 em { color: var(--zop-orange); }
+  .end-stack .sub { color: var(--g-600-d); max-width: 760px; }
+
+  /* Nav controls */
+  .nav-controls { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 16px; background: rgba(15,15,18,0.92); color: var(--cream); padding: 12px 18px; border: 1px solid var(--line-d); font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; z-index: 50; backdrop-filter: blur(8px); }
+  .nav-controls button { background: transparent; border: 1px solid var(--g-600-d); color: var(--cream); width: 36px; height: 28px; cursor: pointer; font-family: inherit; font-size: 14px; }
+  .nav-controls button:hover { border-color: var(--zop-orange); color: var(--zop-orange); }
+  .nav-controls .pos { display: inline-flex; gap: 6px; align-items: baseline; min-width: 70px; justify-content: center; }
+  .nav-controls .pos b { color: var(--zop-orange); font-weight: 500; }
+  .progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--zop-orange); width: 0; z-index: 50; transition: width 250ms cubic-bezier(0.22,1,0.36,1); }
+  .hint { position: fixed; top: 18px; right: 18px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g-600-d); z-index: 40; padding: 6px 10px; border: 1px solid var(--line-d); background: rgba(15,15,18,0.6); }
+
+  /* Crosshairs */
+  .cross-tl, .cross-tr, .cross-bl, .cross-br { position: absolute; width: 8px; height: 8px; opacity: 0.4; }
+  .cross-tl { top: 24px; left: 24px; } .cross-tr { top: 24px; right: 24px; }
+  .cross-bl { bottom: 24px; left: 24px; } .cross-br { bottom: 24px; right: 24px; }
+  .cross-tl::before, .cross-tr::before, .cross-bl::before, .cross-br::before,
+  .cross-tl::after, .cross-tr::after, .cross-bl::after, .cross-br::after { content: ''; position: absolute; background: currentColor; }
+  .cross-tl::before, .cross-tr::before, .cross-bl::before, .cross-br::before { left: 0; right: 0; top: 50%; height: 1px; }
+  .cross-tl::after, .cross-tr::after, .cross-bl::after, .cross-br::after { top: 0; bottom: 0; left: 50%; width: 1px; }
+  .slide.paper [class^="cross-"] { color: var(--line); }
+  .slide.dark  [class^="cross-"] { color: var(--line-d); }
+
+  /* Tetris live canvas (Slide 4 background) */
+  .tet-bg { position: absolute; inset: 0; opacity: 0.18; pointer-events: none; }
+  #tet-canvas { width: 100%; height: 100%; background: transparent; image-rendering: pixelated; }
+</style></head>
+
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="logo-zopdev" viewBox="0 0 715 276">
+      <path d="M7.452 229V201.784L63.504 137.308V134.716H9.072V115.6H85.86V142.816L29.808 207.292V209.884H86.184V229H7.452ZM136.786 231.268C128.794 231.268 121.612 229.648 115.24 226.408C108.868 223.168 103.846 218.47 100.174 212.314C96.5022 206.158 94.6662 198.76 94.6662 190.12V187.528C94.6662 178.888 96.5022 171.49 100.174 165.334C103.846 159.178 108.868 154.48 115.24 151.24C121.612 148 128.794 146.38 136.786 146.38C144.778 146.38 151.96 148 158.332 151.24C164.704 154.48 169.726 159.178 173.398 165.334C177.07 171.49 178.906 178.888 178.906 187.528V190.12C178.906 198.76 177.07 206.158 173.398 212.314C169.726 218.47 164.704 223.168 158.332 226.408C151.96 229.648 144.778 231.268 136.786 231.268ZM136.786 213.124C143.05 213.124 148.234 211.126 152.338 207.13C156.442 203.026 158.494 197.194 158.494 189.634V188.014C158.494 180.454 156.442 174.676 152.338 170.68C148.342 166.576 143.158 164.524 136.786 164.524C130.522 164.524 125.338 166.576 121.234 170.68C117.13 174.676 115.078 180.454 115.078 188.014V189.634C115.078 197.194 117.13 203.026 121.234 207.13C125.338 211.126 130.522 213.124 136.786 213.124ZM192.888 261.4V148.648H212.976V158.368H215.892C217.728 155.236 220.59 152.482 224.478 150.106C228.366 147.622 233.928 146.38 241.164 146.38C247.644 146.38 253.638 148 259.146 151.24C264.654 154.372 269.082 159.016 272.43 165.172C275.778 171.328 277.452 178.78 277.452 187.528V190.12C277.452 198.868 275.778 206.32 272.43 212.476C269.082 218.632 264.654 223.33 259.146 226.57C253.638 229.702 247.644 231.268 241.164 231.268C236.304 231.268 232.2 230.674 228.852 229.486C225.612 228.406 222.966 227.002 220.914 225.274C218.97 223.438 217.404 221.602 216.216 219.766H213.3V261.4H192.888ZM235.008 213.448C241.38 213.448 246.618 211.45 250.722 207.454C254.934 203.35 257.04 197.41 257.04 189.634V188.014C257.04 180.238 254.934 174.352 250.722 170.356C246.51 166.252 241.272 164.2 235.008 164.2C228.744 164.2 223.506 166.252 219.294 170.356C215.082 174.352 212.976 180.238 212.976 188.014V189.634C212.976 197.41 215.082 203.35 219.294 207.454C223.506 211.45 228.744 213.448 235.008 213.448ZM287.446 229V210.208H302.35V134.392H287.446V115.6H334.102C349.33 115.6 360.886 119.488 368.77 127.264C376.762 134.932 380.758 146.38 380.758 161.608V182.992C380.758 198.22 376.762 209.722 368.77 217.498C360.886 225.166 349.33 229 334.102 229H287.446ZM323.734 209.56H334.426C343.066 209.56 349.384 207.292 353.38 202.756C357.376 198.22 359.374 191.848 359.374 183.64V160.96C359.374 152.644 357.376 146.272 353.38 141.844C349.384 137.308 343.066 135.04 334.426 135.04H323.734V209.56ZM430.981 231.268C422.989 231.268 415.915 229.594 409.759 226.246C403.711 222.79 398.959 217.984 395.503 211.828C392.155 205.564 390.481 198.22 390.481 189.796V187.852C390.481 179.428 392.155 172.138 395.503 165.982C398.851 159.718 403.549 154.912 409.597 151.564C415.645 148.108 422.665 146.38 430.657 146.38C438.541 146.38 445.399 148.162 451.231 151.726C457.063 155.182 461.599 160.042 464.839 166.306C468.079 172.462 469.699 179.644 469.699 187.852V194.818H411.217C411.433 200.326 413.485 204.808 417.373 208.264C421.261 211.72 426.013 213.448 431.629 213.448C437.353 213.448 441.565 212.206 444.265 209.722C446.965 207.238 449.017 204.484 450.421 201.46L467.107 210.208C465.595 213.016 463.381 216.094 460.465 219.442C457.657 222.682 453.877 225.49 449.125 227.866C444.373 230.134 438.325 231.268 430.981 231.268ZM411.379 179.59H448.963C448.531 174.946 446.641 171.22 443.293 168.412C440.053 165.604 435.787 164.2 430.495 164.2C424.987 164.2 420.613 165.604 417.373 168.412C414.133 171.22 412.135 174.946 411.379 179.59ZM497.482 229L471.886 148.648H493.594L512.224 214.096H515.14L533.77 148.648H555.478L529.882 229H497.482Z" fill="currentColor"/>
+      <rect x="537" y="0" width="89" height="89" fill="#2A4494"/>
+      <rect x="626" y="0" width="89" height="89" fill="#F58549"/>
+      <rect x="626" y="89" width="89" height="89" fill="#7FB236"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="progress" id="progress"></div>
+<div class="hint">← → · keyboard nav · scroll to advance</div>
+
+<div class="nav-controls">
+  <button id="prev" aria-label="Previous slide">←</button>
+  <span class="pos"><b id="cur">01</b> / <span id="tot">09</span></span>
+  <button id="next" aria-label="Next slide">→</button>
+</div>
+
+<div class="deck" id="deck">
+
+  <!-- 01 · COVER -->
+  <section class="slide paper">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">§ · Narrative shift · CEO brief · 05.2026</span><span class="r">01 / 09 · Cover</span></div>
+    <div class="body" style="align-items: flex-start;">
+      <div class="cover">
+        <span class="ev">A pivot, not a refresh</span>
+        <h1 class="h1">Platform.<br><em>Not a bundle.</em></h1>
+        <p class="sub" style="color: var(--g-600); max-width: 880px;">How we stop selling features and start owning a category. Five shifts in the next 30 days.</p>
+        <svg style="width: clamp(280px, 30vw, 460px); height: auto; color: var(--ink); margin-top: 16px;" viewBox="0 0 715 276" aria-label="ZopDev"><use href="#logo-zopdev"/></svg>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ The problem surface</span></div>
+  </section>
+
+  <!-- 02 · PROBLEM SURFACE -->
+  <section class="slide dark">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">01 · Problem surface · go deeper</span><span class="r">02 / 09</span></div>
+    <div class="body">
+      <div class="problem-block">
+        <div class="left">
+          <span class="ev">What multi-cloud actually feels like</span>
+          <h2 class="h2" style="color: var(--cream);">14 tools.<br>14 logins.<br>14 invoices.<br><em>One CTO.</em></h2>
+          <p class="sub" style="color: var(--g-600-d); max-width: 560px;">Multi-cloud isn't fragmented by accident. Every category has its own US-built tool. Stitching them is the actual job.</p>
+          <div class="stat-strip">
+            <span class="num">$<em>147</em>K</span>
+            <span class="label">Avg annual spend on stitched tooling, mid-market SaaS</span>
+          </div>
+        </div>
+        <div class="tool-grid">
+          <div class="tool"><span class="k">FinOps</span><span class="n">Vantage</span></div>
+          <div class="tool"><span class="k">FinOps</span><span class="n">CloudHealth</span></div>
+          <div class="tool"><span class="k">IaC</span><span class="n">Spacelift</span></div>
+          <div class="tool"><span class="k">IDP</span><span class="n">Backstage</span></div>
+          <div class="tool"><span class="k">Obs</span><span class="n">Datadog</span></div>
+          <div class="tool"><span class="k">Security</span><span class="n">Wiz</span></div>
+          <div class="tool"><span class="k">Deploy</span><span class="n">Octopus</span></div>
+          <div class="tool"><span class="k">Audit</span><span class="n">Drata</span></div>
+          <div class="tool"><span class="k">RBAC</span><span class="n">Okta Cloud</span></div>
+          <div class="tool"><span class="k">Tagging</span><span class="n">Cloudability</span></div>
+          <div class="tool"><span class="k">Tickets</span><span class="n">Jira+Slack</span></div>
+          <div class="tool"><span class="k">K8s</span><span class="n">Rancher</span></div>
+          <div class="tool"><span class="k">Cluster</span><span class="n">Lens</span></div>
+          <div class="tool warn"><span class="k">Plus</span><span class="n">Per-cloud consoles</span></div>
+          <div class="tool warn"><span class="k">And</span><span class="n">Custom glue</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ The misframe</span></div>
+  </section>
+
+  <!-- 03 · THE MISFRAME -->
+  <section class="slide paper">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">02 · Misframe · stop selling features</span><span class="r">03 / 09</span></div>
+    <div class="body">
+      <div class="misframe">
+        <span class="ev">A correction we have to make</span>
+        <h2 class="h2">We are not a <em>feature factory.</em></h2>
+        <div class="strike">"ZopDev does scheduling. And remediation. And recommendations. And deploy. And RBAC. And cost-optimization. And…"</div>
+        <div class="pivot">The product is the <em>place</em> your team operates. Every feature is downstream of that.</div>
+        <p class="sub" style="color: var(--g-600); max-width: 1100px;">Bundling features is what tools do. Platforms sell <em>ground</em>. Stop reading the spec sheet aloud. Start describing the workspace.</p>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ Tetris extended</span></div>
+  </section>
+
+  <!-- 04 · TETRIS EXTENDED -->
+  <section class="slide dark">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="tet-bg"><canvas id="tet-canvas"></canvas></div>
+    <div class="strip"><span class="l">03 · Tetris · extend the metaphor</span><span class="r">04 / 09</span></div>
+    <div class="body" style="flex-direction: column; gap: 28px; align-items: flex-start;">
+      <div style="display: flex; flex-direction: column; gap: 16px; max-width: 1200px;">
+        <span class="ev" style="color: var(--g-600-d);">From bookend to brand</span>
+        <h2 class="h2" style="color: var(--cream);">Tetris is the <em>brand.</em><br>Not the closer.</h2>
+        <p class="sub" style="color: var(--g-600-d); max-width: 980px;">Today it bookends Day 0 and Day 7. It should carry the whole story. Tetris is the act of fitting disparate pieces into one coherent surface. That is the product.</p>
+      </div>
+      <div class="tetris-extended" style="margin-top: 8px;">
+        <div class="panel">
+          <span class="k">Layer 01 · in market</span>
+          <div class="grid-mini">
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span class="o"></span><span class="o"></span><span></span><span></span>
+            <span></span><span class="g"></span><span class="g"></span><span class="g"></span><span class="o"></span><span></span>
+            <span class="o"></span><span class="g"></span><span></span><span></span><span class="o"></span><span></span>
+            <span class="o"></span><span class="o"></span><span class="g"></span><span class="g"></span><span class="n"></span><span></span>
+            <span class="c"></span><span class="o"></span><span class="g"></span><span class="n"></span><span class="n"></span><span class="n"></span>
+            <span class="c"></span><span class="c"></span><span class="n"></span><span class="o"></span><span class="o"></span><span class="g"></span>
+          </div>
+          <span class="meaning">We are building.</span>
+          <span class="product">D0 · D7 · existing reveal</span>
+        </div>
+        <div class="panel">
+          <span class="k">Layer 02 · waste</span>
+          <div class="grid-mini">
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+            <span></span><span class="o"></span><span class="o"></span><span></span><span></span><span></span>
+            <span class="o"></span><span class="o"></span><span class="n"></span><span class="n"></span><span></span><span></span>
+            <span class="g"></span><span class="g"></span><span class="o"></span><span class="o"></span><span class="o"></span><span class="g"></span>
+            <span class="o"></span><span class="n"></span><span class="g"></span><span class="o"></span><span class="o"></span><span class="g"></span>
+          </div>
+          <span class="meaning">Lines clear.<br>Waste clears.</span>
+          <span class="product">ZopNight · scheduling, remediation</span>
+        </div>
+        <div class="panel">
+          <span class="k">Layer 03 · ship</span>
+          <div class="grid-mini">
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span class="o"></span><span></span><span></span><span></span>
+            <span></span><span></span><span class="o"></span><span class="o"></span><span></span><span></span>
+            <span></span><span></span><span></span><span class="o"></span><span></span><span></span>
+            <span></span><span class="n"></span><span class="n"></span><span class="n"></span><span></span><span></span>
+            <span></span><span></span><span class="n"></span><span class="g"></span><span class="g"></span><span></span>
+            <span class="o"></span><span class="g"></span><span class="g"></span><span class="o"></span><span class="o"></span><span class="n"></span>
+            <span class="o"></span><span class="o"></span><span class="o"></span><span class="g"></span><span class="g"></span><span class="n"></span>
+          </div>
+          <span class="meaning">Pieces lock.<br>Deploys ship.</span>
+          <span class="product">ZopDay · push to deploy</span>
+        </div>
+        <div class="panel">
+          <span class="k">Layer 04 · grid</span>
+          <div class="grid-mini">
+            <span class="o"></span><span class="n"></span><span class="g"></span><span class="o"></span><span class="n"></span><span class="g"></span>
+            <span class="o"></span><span class="o"></span><span class="n"></span><span class="g"></span><span class="g"></span><span class="o"></span>
+            <span class="n"></span><span class="n"></span><span class="o"></span><span class="o"></span><span class="g"></span><span class="n"></span>
+            <span class="g"></span><span class="o"></span><span class="n"></span><span class="n"></span><span class="o"></span><span class="g"></span>
+            <span class="o"></span><span class="g"></span><span class="g"></span><span class="o"></span><span class="n"></span><span class="o"></span>
+            <span class="n"></span><span class="o"></span><span class="o"></span><span class="g"></span><span class="o"></span><span class="n"></span>
+            <span class="c"></span><span class="g"></span><span class="n"></span><span class="o"></span><span class="g"></span><span class="c"></span>
+            <span class="c"></span><span class="c"></span><span class="o"></span><span class="o"></span><span class="c"></span><span class="c"></span>
+          </div>
+          <span class="meaning">The grid is<br>your cloud.</span>
+          <span class="product">ZopCloud · the platform itself</span>
+        </div>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ ZopNight as one-stop</span></div>
+  </section>
+
+  <!-- 05 · ZOPNIGHT ONE-STOP -->
+  <section class="slide paper">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">04 · ZopNight · one-stop, not bundle</span><span class="r">05 / 09</span></div>
+    <div class="body">
+      <div class="night-block">
+        <div class="left">
+          <span class="ev">Stop pitching features. Pitch a promise.</span>
+          <h2 class="h2">Your cloud sleeps.<br><em>You sleep.</em></h2>
+          <p class="sub" style="color: var(--g-600);">ZopNight is not five features in a trench coat. It is one outcome: your cloud is quiet when no one is watching, and you don't have to wire it up yourself.</p>
+          <div class="strike" style="font-family: var(--font); font-weight: 500; font-size: 22px; line-height: 1.4; letter-spacing: -0.02em; color: var(--g-500); text-decoration: line-through; margin-top: 8px;">"Smart Scheduling + Auto-Remediation + Right-sizing + Tag Audit + Recommendations Engine"</div>
+        </div>
+        <div class="timeline" style="color: var(--ink);">
+          <div class="row"><span class="t">21:00</span><span class="e">Friday. Engineering signs off.</span></div>
+          <div class="row"><span class="t">21:14</span><span class="e">Non-prod clusters scale down. <em>No human in the loop.</em></span></div>
+          <div class="row"><span class="t">22:31</span><span class="e">Idle RDS instances flagged. Auto-stop applied.</span></div>
+          <div class="row"><span class="t">03:48</span><span class="e">Cost guardrail trips on a runaway batch job. <em>Auto-throttled.</em></span></div>
+          <div class="row"><span class="t">05:12</span><span class="e">Tag audit runs. 14 violations queued for Monday.</span></div>
+          <div class="row"><span class="t">08:00</span><span class="e">Engineering signs on. <em>Cloud is right-sized.</em></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev/night</span><span class="r">→ The only platform</span></div>
+  </section>
+
+  <!-- 06 · ONLY PLATFORM -->
+  <section class="slide dark">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">05 · Position · the only CloudOps platform</span><span class="r">06 / 09</span></div>
+    <div class="body" style="flex-direction: column; gap: 24px;">
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <span class="ev" style="color: var(--g-600-d);">There is no other</span>
+        <h2 class="h2" style="color: var(--cream);">14 tools.<br>Or <em>ZopDev.</em></h2>
+      </div>
+      <div class="only-platform">
+        <div class="col before">
+          <span class="k">Before · stitched stack</span>
+          <span class="name" style="color: var(--g-600-d);">What you operate on today</span>
+          <div class="tools">
+            <span class="tool">Vantage<span class="what">FinOps</span></span>
+            <span class="tool">CloudHealth<span class="what">FinOps</span></span>
+            <span class="tool">Spacelift<span class="what">IaC</span></span>
+            <span class="tool">Backstage<span class="what">IDP</span></span>
+            <span class="tool">Datadog<span class="what">Obs</span></span>
+            <span class="tool">Wiz<span class="what">Security</span></span>
+            <span class="tool">Octopus<span class="what">Deploy</span></span>
+            <span class="tool">Drata<span class="what">Audit</span></span>
+            <span class="tool">Cloudability<span class="what">Tagging</span></span>
+            <span class="tool">Rancher<span class="what">K8s</span></span>
+            <span class="tool">Okta<span class="what">RBAC</span></span>
+            <span class="tool">+ custom glue<span class="what">Yours</span></span>
+          </div>
+        </div>
+        <div class="col after">
+          <span class="k">After · the platform</span>
+          <span class="name">What you operate on with us</span>
+          <div class="canvas-box">
+            <svg class="lockup" viewBox="0 0 715 276" aria-label="ZopDev"><use href="#logo-zopdev"/></svg>
+            <div class="tagline">One platform.<br>Zero stitching.</div>
+            <div class="sub">CloudOps · finops · platform · deploy · audit</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ Sell the platform</span></div>
+  </section>
+
+  <!-- 07 · SELL THE PLATFORM -->
+  <section class="slide paper">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">06 · Sell · ground, not bricks</span><span class="r">07 / 09</span></div>
+    <div class="body">
+      <div class="framework">
+        <span class="ev" style="margin-bottom: 8px;">A framework for every pitch this month</span>
+        <h2 class="h2" style="margin-bottom: 24px;">Sell <em>ground.</em><br>Not bricks.</h2>
+        <div class="row">
+          <span class="n">01</span>
+          <span class="strike">"ZopNight saves you 30% on cloud."</span>
+          <span class="pivot">"ZopDev is the <em>place</em> where saving 30% happens, automatically, every night."</span>
+        </div>
+        <div class="row">
+          <span class="n">02</span>
+          <span class="strike">"ZopDay deploys to AWS, GCP, Azure."</span>
+          <span class="pivot">"ZopDev is the <em>operating layer</em> your platform team builds on."</span>
+        </div>
+        <div class="row">
+          <span class="n">03</span>
+          <span class="strike">"We have 380+ resource types and 315+ audit rules."</span>
+          <span class="pivot">"We are the <em>single substrate</em> for every action your team takes on cloud."</span>
+        </div>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ The action list</span></div>
+  </section>
+
+  <!-- 08 · ACTION -->
+  <section class="slide paper">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">07 · Action · 5 shifts this month</span><span class="r">08 / 09</span></div>
+    <div class="body">
+      <div class="action">
+        <span class="ev">What changes in the next 30 days</span>
+        <h2 class="action-head">Five <em>shifts.</em></h2>
+        <div class="actions">
+          <div class="a-row"><span class="n">01</span><span class="what">Rewrite the homepage hero. <em>"Platform. Not a bundle."</em> Replace the feature scroll with a single operating-layer statement.</span><span class="who">Marketing · Brand</span></div>
+          <div class="a-row"><span class="n">02</span><span class="what">Re-edit D4 (Product depth). Cut the stat list. Replace with the <em>"Your cloud sleeps. You sleep."</em> narrative.</span><span class="who">Marketing · D4 post</span></div>
+          <div class="a-row"><span class="n">03</span><span class="what">Add a <em>"stitched stack vs ZopDev"</em> carousel to the launch week. Slot before Day 6 Proof.</span><span class="who">Design · 5-tile carousel</span></div>
+          <div class="a-row"><span class="n">04</span><span class="what">Extend Tetris across D2, D5, D14. <em>One game, four meanings.</em> Use the four layers from slide 04.</span><span class="who">Motion · 3 short clips</span></div>
+          <div class="a-row"><span class="n">05</span><span class="what">Founder LinkedIn cadence: <em>one platform post per week.</em> Not feature posts. Position pieces, category claims, customer ground stories.</span><span class="who">Founder · ongoing</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ End</span></div>
+  </section>
+
+  <!-- 09 · END -->
+  <section class="slide dark">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">End · Narrative shift · 05.2026</span><span class="r">09 / 09</span></div>
+    <div class="body" style="align-items: center; justify-content: center;">
+      <div class="end-stack">
+        <span class="ev">One game. Four meanings. One platform.</span>
+        <h1 class="h1">Sell <em>ground.</em><br>Not bricks.</h1>
+        <p class="sub">Stop pitching features. Start owning the only place where CloudOps happens. Brief the team this week.</p>
+        <svg style="width: 220px; height: auto; color: var(--cream); margin-top: 12px;" viewBox="0 0 715 276"><use href="#logo-zopdev"/></svg>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">— End of brief —</span></div>
+  </section>
+
+</div>
+
+<script src="cta-tetris.js"></script>
+<script>
+(function(){
+  var deck = document.getElementById('deck');
+  var slides = deck.querySelectorAll('.slide');
+  var total = slides.length;
+  document.getElementById('tot').textContent = String(total).padStart(2, '0');
+  var cur = document.getElementById('cur');
+  var bar = document.getElementById('progress');
+
+  function update(){
+    var i = Math.round(deck.scrollLeft / window.innerWidth);
+    i = Math.max(0, Math.min(total - 1, i));
+    cur.textContent = String(i + 1).padStart(2, '0');
+    bar.style.width = ((i + 1) / total * 100) + '%';
+  }
+  function go(delta){
+    var i = Math.round(deck.scrollLeft / window.innerWidth);
+    var next = Math.max(0, Math.min(total - 1, i + delta));
+    deck.scrollTo({ left: slides[next].offsetLeft, behavior: 'smooth' });
+  }
+  document.getElementById('prev').addEventListener('click', function(){ go(-1); });
+  document.getElementById('next').addEventListener('click', function(){ go(1); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); go(1); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(-1); }
+    if (e.key === 'Home') { e.preventDefault(); deck.scrollTo({ left: 0, behavior: 'smooth' }); }
+    if (e.key === 'End') { e.preventDefault(); deck.scrollTo({ left: slides[total-1].offsetLeft, behavior: 'smooth' }); }
+  });
+  deck.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+
+  var match = window.location.search.match(/[?&]s=(\d+)/);
+  if (match) {
+    var target = Math.max(1, Math.min(total, parseInt(match[1], 10))) - 1;
+    deck.style.scrollBehavior = 'auto';
+    function pin(){ deck.scrollLeft = slides[target].offsetLeft; update(); }
+    pin(); requestAnimationFrame(pin);
+    setTimeout(pin, 100); setTimeout(pin, 500);
+    setTimeout(function(){ deck.style.scrollBehavior = 'smooth'; pin(); }, 1500);
+  } else {
+    update();
+  }
+})();
+</script>
+
+</body></html>
