@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>ZopDev · 30-day plan · exact posts per day</title>
+<link rel="stylesheet" href="kit.css">
+<style>
+  html, body { height: 100%; overflow: hidden; background: var(--ink-d); }
+  .deck { display: flex; height: 100vh; overflow-x: scroll; overflow-y: hidden; scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .deck::-webkit-scrollbar { display: none; }
+  .slide { flex: 0 0 100vw; width: 100vw; height: 100vh; scroll-snap-align: center; scroll-snap-stop: always; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 48px 64px; }
+  .slide.paper { background: var(--paper); color: var(--ink); }
+  .slide.dark  { background: var(--ink-d); color: var(--cream); }
+
+  /* Strips */
+  .strip { display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+  .strip .l, .strip .r { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; }
+  .slide.paper .strip .l, .slide.paper .strip .r { color: var(--g-600); }
+  .slide.dark  .strip .l, .slide.dark  .strip .r { color: var(--g-600-d); }
+  .strip .l { display: inline-flex; align-items: center; gap: 12px; }
+  .strip .l::before { content: ''; width: 10px; height: 10px; background: var(--zop-orange); }
+
+  /* Body */
+  .body { flex: 1; display: flex; align-items: stretch; min-height: 0; padding: 24px 0; }
+
+  /* Typography */
+  .ev { font-family: var(--mono); font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .ev::before { content: ''; width: 10px; height: 10px; background: var(--zop-orange); }
+  em { font-style: normal; color: var(--zop-orange); }
+
+  /* ── Cover ── */
+  .cover-stack { display: flex; flex-direction: column; gap: 28px; max-width: 1300px; margin: auto 0; align-items: flex-start; }
+  .cover-stack .h1 { font-family: var(--font); font-weight: 700; font-size: clamp(80px, 9vw, 180px); line-height: 0.92; letter-spacing: -0.045em; }
+  .cover-stack .sub { font-family: var(--font); font-weight: 500; font-size: clamp(20px, 2vw, 32px); line-height: 1.3; letter-spacing: -0.025em; color: var(--g-600); max-width: 720px; }
+  .cover-stack .lockup { width: clamp(280px, 30vw, 460px); height: auto; color: var(--ink); }
+  .phase-strip { margin-top: 8px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; width: 100%; max-width: 1200px; }
+  .phase-strip .ps { padding: 14px 16px; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; background: var(--paper); }
+  .phase-strip .ps .d { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g-500); }
+  .phase-strip .ps .n { font-family: var(--font); font-weight: 700; font-size: 18px; letter-spacing: -0.02em; color: var(--ink); }
+  .phase-strip .ps.p1 { border-top: 3px solid var(--zop-orange); }
+  .phase-strip .ps.p2 { border-top: 3px solid var(--zop-blue); }
+  .phase-strip .ps.p3 { border-top: 3px solid var(--zop-green-dark, #3f6320); }
+  .phase-strip .ps.p4 { border-top: 3px solid var(--ink); }
+  .phase-strip .ps.p5 { border-top: 3px solid var(--g-500); }
+
+  /* ── Calendar overview ── */
+  .month-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; width: 100%; }
+  .month-grid .col { display: flex; flex-direction: column; gap: 6px; }
+  .month-grid .col-head { padding: 10px 0; border-top: 2px solid var(--ink); display: flex; flex-direction: column; gap: 2px; }
+  .month-grid .col-head .num { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--g-500); }
+  .month-grid .col-head .name { font-family: var(--font); font-weight: 700; font-size: 20px; letter-spacing: -0.025em; color: var(--ink); }
+  .month-grid .col-head .lede { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g-600); }
+  .month-grid .cell { padding: 8px 10px; border: 1px solid var(--line); background: var(--paper); display: flex; flex-direction: column; gap: 3px; min-height: 48px; }
+  .month-grid .cell .d { font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em; color: var(--zop-orange); font-weight: 600; }
+  .month-grid .cell .c { font-family: var(--font); font-weight: 500; font-size: 13px; letter-spacing: -0.02em; color: var(--ink); line-height: 1.1; }
+  .month-grid .cell.empty { border-style: dashed; opacity: 0.4; }
+  .month-grid .col.p1 .col-head { border-top-color: var(--zop-orange); }
+  .month-grid .col.p2 .col-head { border-top-color: var(--zop-blue); }
+  .month-grid .col.p3 .col-head { border-top-color: var(--zop-green-dark, #3f6320); }
+  .month-grid .col.p4 .col-head { border-top-color: var(--ink); }
+  .month-grid .col.p5 .col-head { border-top-color: var(--g-500); }
+
+  /* ── DAY SLIDE LAYOUT ── */
+  .day-slide-body { display: grid; grid-template-columns: 1.3fr 0.9fr 0.8fr; gap: 40px; width: 100%; height: 100%; }
+  .day-slide-body .l { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+  .day-slide-body .m { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .day-slide-body .m .tile-wrap { display: flex; align-items: flex-start; justify-content: center; border: 1px solid currentColor; background: var(--paper); padding: 0; overflow: hidden; max-height: 78vh; }
+  .slide.paper .day-slide-body .m .tile-wrap { border-color: var(--line); }
+  .slide.dark  .day-slide-body .m .tile-wrap { border-color: var(--line-d); background: var(--ink-d); }
+  .day-slide-body .m .tile-wrap img { display: block; width: 100%; height: auto; max-height: 78vh; object-fit: contain; }
+  .day-slide-body .m .tile-cap { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; }
+  .slide.paper .day-slide-body .m .tile-cap { color: var(--g-500); }
+  .slide.dark  .day-slide-body .m .tile-cap { color: var(--g-600-d); }
+  .day-slide-body .l .meta-row { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+  .day-slide-body .l .d-num { font-family: var(--font); font-weight: 700; font-size: 56px; line-height: 0.9; letter-spacing: -0.045em; }
+  .day-slide-body .l .d-num em { color: var(--zop-orange); }
+  .day-slide-body .l .phase-tag { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; padding: 5px 10px; border: 1px solid currentColor; }
+  .slide.paper .phase-tag.p1 { color: var(--zop-orange); border-color: var(--zop-orange); }
+  .slide.dark  .phase-tag.p2 { color: #4A66D4; border-color: #4A66D4; }
+  .slide.paper .phase-tag.p3 { color: var(--zop-green-dark, #3f6320); border-color: var(--zop-green-dark, #3f6320); }
+  .slide.dark  .phase-tag.p4 { color: var(--cream); border-color: var(--cream); }
+  .slide.paper .phase-tag.p5 { color: var(--g-600); border-color: var(--g-600); }
+  .day-slide-body .l .dow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.8; }
+  .day-slide-body .l .hook { font-family: var(--font); font-weight: 700; font-size: clamp(42px, 4vw, 64px); line-height: 1.0; letter-spacing: -0.04em; margin-top: 8px; max-width: 900px; }
+  .day-slide-body .l .hook em { color: var(--zop-orange); }
+  .day-slide-body .l .caption { font-family: var(--font-body); font-weight: 400; font-size: 17px; line-height: 1.5; letter-spacing: -0.005em; white-space: pre-wrap; max-width: 720px; margin-top: 12px; overflow-y: auto; flex: 1; min-height: 0; }
+  .slide.paper .day-slide-body .l .caption { color: var(--g-700); }
+  .slide.dark  .day-slide-body .l .caption { color: var(--g-600-d); }
+
+  .day-slide-body .r { display: flex; flex-direction: column; gap: 20px; }
+  .day-slide-body .r .card { border: 1px solid currentColor; padding: 22px 24px; display: flex; flex-direction: column; gap: 12px; }
+  .slide.paper .day-slide-body .r .card { border-color: var(--line); }
+  .slide.dark  .day-slide-body .r .card { border-color: var(--line-d); }
+  .day-slide-body .r .card .k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; }
+  .slide.paper .day-slide-body .r .card .k { color: var(--g-500); }
+  .slide.dark  .day-slide-body .r .card .k { color: var(--g-600-d); }
+  .day-slide-body .r .card .v { font-family: var(--font); font-weight: 600; font-size: 22px; letter-spacing: -0.025em; line-height: 1.15; }
+  .day-slide-body .r .card .v em { color: var(--zop-orange); }
+  .day-slide-body .r .card ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+  .day-slide-body .r .card ul li { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+  .day-slide-body .r .card ul li::before { content: ''; width: 6px; height: 6px; background: var(--zop-orange); flex-shrink: 0; }
+  .slide.paper .day-slide-body .r .card ul li { color: var(--g-600); }
+  .slide.dark  .day-slide-body .r .card ul li { color: var(--g-600-d); }
+
+  /* End slide */
+  .end-stack { display: flex; flex-direction: column; gap: 32px; align-items: center; text-align: center; max-width: 1000px; margin: auto 0; }
+  .end-stack .h1 { font-family: var(--font); font-weight: 700; font-size: clamp(80px, 9vw, 180px); line-height: 0.92; letter-spacing: -0.045em; color: var(--cream); }
+  .end-stack .h1 em { color: var(--zop-orange); }
+  .end-table { width: 100%; border-top: 1px solid var(--line-d); border-bottom: 1px solid var(--line-d); }
+  .end-table .row { display: grid; grid-template-columns: 80px 1fr 100px; padding: 14px 0; border-bottom: 1px solid var(--line-d); align-items: center; }
+  .end-table .row:last-child { border-bottom: 0; }
+  .end-table .row .ph { font-family: var(--mono); font-size: 13px; letter-spacing: 0.18em; color: var(--zop-orange); }
+  .end-table .row .nm { font-family: var(--font); font-weight: 600; font-size: 22px; letter-spacing: -0.025em; color: var(--cream); }
+  .end-table .row .ct { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g-600-d); text-align: right; }
+
+  /* Nav controls */
+  .nav-controls { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; background: rgba(15,15,18,0.94); color: var(--cream); padding: 10px 16px; border: 1px solid var(--line-d); font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; z-index: 50; backdrop-filter: blur(8px); }
+  .nav-controls button { background: transparent; border: 1px solid var(--g-600-d); color: var(--cream); width: 32px; height: 26px; cursor: pointer; font-family: inherit; font-size: 13px; }
+  .nav-controls button:hover { border-color: var(--zop-orange); color: var(--zop-orange); }
+  .nav-controls .pos { display: inline-flex; gap: 5px; align-items: baseline; min-width: 64px; justify-content: center; }
+  .nav-controls .pos b { color: var(--zop-orange); font-weight: 500; }
+  .nav-controls select { background: transparent; color: var(--cream); border: 1px solid var(--g-600-d); padding: 5px 8px; font-family: inherit; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; }
+
+  .progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--zop-orange); width: 0; z-index: 50; transition: width 200ms cubic-bezier(0.22,1,0.36,1); }
+  .hint { position: fixed; top: 14px; right: 14px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g-600-d); z-index: 40; padding: 5px 9px; border: 1px solid var(--line-d); background: rgba(15,15,18,0.6); }
+
+  /* Crosshairs */
+  .cross-tl, .cross-tr, .cross-bl, .cross-br { position: absolute; width: 8px; height: 8px; opacity: 0.4; }
+  .cross-tl { top: 20px; left: 20px; } .cross-tr { top: 20px; right: 20px; }
+  .cross-bl { bottom: 20px; left: 20px; } .cross-br { bottom: 20px; right: 20px; }
+  .cross-tl::before, .cross-tr::before, .cross-bl::before, .cross-br::before,
+  .cross-tl::after, .cross-tr::after, .cross-bl::after, .cross-br::after { content: ''; position: absolute; background: currentColor; }
+  .cross-tl::before, .cross-tr::before, .cross-bl::before, .cross-br::before { left: 0; right: 0; top: 50%; height: 1px; }
+  .cross-tl::after, .cross-tr::after, .cross-bl::after, .cross-br::after { top: 0; bottom: 0; left: 50%; width: 1px; }
+  .slide.paper [class^="cross-"] { color: var(--line); }
+  .slide.dark  [class^="cross-"] { color: var(--line-d); }
+</style></head>
+
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="logo-zopdev" viewBox="0 0 715 276">
+      <path d="M7.452 229V201.784L63.504 137.308V134.716H9.072V115.6H85.86V142.816L29.808 207.292V209.884H86.184V229H7.452ZM136.786 231.268C128.794 231.268 121.612 229.648 115.24 226.408C108.868 223.168 103.846 218.47 100.174 212.314C96.5022 206.158 94.6662 198.76 94.6662 190.12V187.528C94.6662 178.888 96.5022 171.49 100.174 165.334C103.846 159.178 108.868 154.48 115.24 151.24C121.612 148 128.794 146.38 136.786 146.38C144.778 146.38 151.96 148 158.332 151.24C164.704 154.48 169.726 159.178 173.398 165.334C177.07 171.49 178.906 178.888 178.906 187.528V190.12C178.906 198.76 177.07 206.158 173.398 212.314C169.726 218.47 164.704 223.168 158.332 226.408C151.96 229.648 144.778 231.268 136.786 231.268ZM136.786 213.124C143.05 213.124 148.234 211.126 152.338 207.13C156.442 203.026 158.494 197.194 158.494 189.634V188.014C158.494 180.454 156.442 174.676 152.338 170.68C148.342 166.576 143.158 164.524 136.786 164.524C130.522 164.524 125.338 166.576 121.234 170.68C117.13 174.676 115.078 180.454 115.078 188.014V189.634C115.078 197.194 117.13 203.026 121.234 207.13C125.338 211.126 130.522 213.124 136.786 213.124ZM192.888 261.4V148.648H212.976V158.368H215.892C217.728 155.236 220.59 152.482 224.478 150.106C228.366 147.622 233.928 146.38 241.164 146.38C247.644 146.38 253.638 148 259.146 151.24C264.654 154.372 269.082 159.016 272.43 165.172C275.778 171.328 277.452 178.78 277.452 187.528V190.12C277.452 198.868 275.778 206.32 272.43 212.476C269.082 218.632 264.654 223.33 259.146 226.57C253.638 229.702 247.644 231.268 241.164 231.268C236.304 231.268 232.2 230.674 228.852 229.486C225.612 228.406 222.966 227.002 220.914 225.274C218.97 223.438 217.404 221.602 216.216 219.766H213.3V261.4H192.888ZM235.008 213.448C241.38 213.448 246.618 211.45 250.722 207.454C254.934 203.35 257.04 197.41 257.04 189.634V188.014C257.04 180.238 254.934 174.352 250.722 170.356C246.51 166.252 241.272 164.2 235.008 164.2C228.744 164.2 223.506 166.252 219.294 170.356C215.082 174.352 212.976 180.238 212.976 188.014V189.634C212.976 197.41 215.082 203.35 219.294 207.454C223.506 211.45 228.744 213.448 235.008 213.448ZM287.446 229V210.208H302.35V134.392H287.446V115.6H334.102C349.33 115.6 360.886 119.488 368.77 127.264C376.762 134.932 380.758 146.38 380.758 161.608V182.992C380.758 198.22 376.762 209.722 368.77 217.498C360.886 225.166 349.33 229 334.102 229H287.446ZM323.734 209.56H334.426C343.066 209.56 349.384 207.292 353.38 202.756C357.376 198.22 359.374 191.848 359.374 183.64V160.96C359.374 152.644 357.376 146.272 353.38 141.844C349.384 137.308 343.066 135.04 334.426 135.04H323.734V209.56ZM430.981 231.268C422.989 231.268 415.915 229.594 409.759 226.246C403.711 222.79 398.959 217.984 395.503 211.828C392.155 205.564 390.481 198.22 390.481 189.796V187.852C390.481 179.428 392.155 172.138 395.503 165.982C398.851 159.718 403.549 154.912 409.597 151.564C415.645 148.108 422.665 146.38 430.657 146.38C438.541 146.38 445.399 148.162 451.231 151.726C457.063 155.182 461.599 160.042 464.839 166.306C468.079 172.462 469.699 179.644 469.699 187.852V194.818H411.217C411.433 200.326 413.485 204.808 417.373 208.264C421.261 211.72 426.013 213.448 431.629 213.448C437.353 213.448 441.565 212.206 444.265 209.722C446.965 207.238 449.017 204.484 450.421 201.46L467.107 210.208C465.595 213.016 463.381 216.094 460.465 219.442C457.657 222.682 453.877 225.49 449.125 227.866C444.373 230.134 438.325 231.268 430.981 231.268ZM411.379 179.59H448.963C448.531 174.946 446.641 171.22 443.293 168.412C440.053 165.604 435.787 164.2 430.495 164.2C424.987 164.2 420.613 165.604 417.373 168.412C414.133 171.22 412.135 174.946 411.379 179.59ZM497.482 229L471.886 148.648H493.594L512.224 214.096H515.14L533.77 148.648H555.478L529.882 229H497.482Z" fill="currentColor"/>
+      <rect x="537" y="0" width="89" height="89" fill="#2A4494"/>
+      <rect x="626" y="0" width="89" height="89" fill="#F58549"/>
+      <rect x="626" y="89" width="89" height="89" fill="#7FB236"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="progress" id="progress"></div>
+<div class="hint">← → · keyboard nav · scroll to advance</div>
+
+<div class="nav-controls">
+  <button id="prev" aria-label="Previous slide">←</button>
+  <span class="pos"><b id="cur">01</b> / <span id="tot">33</span></span>
+  <button id="next" aria-label="Next slide">→</button>
+  <select id="jump" aria-label="Jump to slide"></select>
+</div>
+
+<div class="deck" id="deck">
+
+  <!-- 01 · COVER -->
+  <section class="slide paper" data-title="Cover">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">§ · 30-day plan · 06.2026</span><span class="r">01 / 33 · Cover</span></div>
+    <div class="body">
+      <div class="cover-stack">
+        <span class="ev">30 days · 30 posts · 1 brand</span>
+        <h1 class="h1"><em>30</em> days.</h1>
+        <p class="sub">Every day, one post. Every post, locked to brand. The 7-day launch sets the stage. The next 23 turn attention into action.</p>
+        <svg class="lockup" viewBox="0 0 715 276" aria-label="ZopDev"><use href="#logo-zopdev"/></svg>
+        <div class="phase-strip">
+          <div class="ps p1"><span class="d">P1 · D1–D7</span><span class="n">Launch</span></div>
+          <div class="ps p2"><span class="d">P2 · D8–D14</span><span class="n">Activate</span></div>
+          <div class="ps p3"><span class="d">P3 · D15–D21</span><span class="n">Amplify</span></div>
+          <div class="ps p4"><span class="d">P4 · D22–D28</span><span class="n">Convert</span></div>
+          <div class="ps p5"><span class="d">P5 · D29–D30</span><span class="n">Reflect</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ Month at a glance</span></div>
+  </section>
+
+  <!-- 02 · CALENDAR -->
+  <section class="slide paper" data-title="Calendar">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">The month</span><span class="r">02 / 33 · Calendar</span></div>
+    <div class="body" style="flex-direction: column; align-items: flex-start; gap: 20px; padding-top: 4px;">
+      <h2 style="font-family: var(--font); font-weight: 700; font-size: clamp(56px, 6vw, 96px); line-height: 0.96; letter-spacing: -0.045em;">The <em>month.</em></h2>
+      <div class="month-grid">
+        <div class="col p1"><div class="col-head"><span class="num">P1 · D1–D7</span><span class="name">Launch</span><span class="lede">Show the brand</span></div>
+          <div class="cell"><span class="d">D1 · Mon</span><span class="c">Reveal</span></div>
+          <div class="cell"><span class="d">D2 · Tue</span><span class="c">Two sides</span></div>
+          <div class="cell"><span class="d">D3 · Wed</span><span class="c">POV</span></div>
+          <div class="cell"><span class="d">D4 · Thu</span><span class="c">Product depth</span></div>
+          <div class="cell"><span class="d">D5 · Fri</span><span class="c">Craft</span></div>
+          <div class="cell"><span class="d">D6 · Sat</span><span class="c">Proof</span></div>
+          <div class="cell"><span class="d">D7 · Sun</span><span class="c">Close</span></div>
+        </div>
+        <div class="col p2"><div class="col-head"><span class="num">P2 · D8–D14</span><span class="name">Activate</span><span class="lede">First-touch</span></div>
+          <div class="cell"><span class="d">D8 · Mon</span><span class="c">Onboarding</span></div>
+          <div class="cell"><span class="d">D9 · Tue</span><span class="c">Scheduling</span></div>
+          <div class="cell"><span class="d">D10 · Wed</span><span class="c">Auto-Remediation</span></div>
+          <div class="cell"><span class="d">D11 · Thu</span><span class="c">ZopDay deploy</span></div>
+          <div class="cell"><span class="d">D12 · Fri</span><span class="c">ZopCloud</span></div>
+          <div class="cell"><span class="d">D13 · Sat</span><span class="c">Sandbox</span></div>
+          <div class="cell"><span class="d">D14 · Sun</span><span class="c">Week-one wrap</span></div>
+        </div>
+        <div class="col p3"><div class="col-head"><span class="num">P3 · D15–D21</span><span class="name">Amplify</span><span class="lede">Other voices</span></div>
+          <div class="cell"><span class="d">D15 · Mon</span><span class="c">McAfee case</span></div>
+          <div class="cell"><span class="d">D16 · Tue</span><span class="c">Azure F1000</span></div>
+          <div class="cell"><span class="d">D17 · Wed</span><span class="c">FMCG estate</span></div>
+          <div class="cell"><span class="d">D18 · Thu</span><span class="c">India SaaS</span></div>
+          <div class="cell"><span class="d">D19 · Fri</span><span class="c">Benchmark</span></div>
+          <div class="cell"><span class="d">D20 · Sat</span><span class="c">Compliance</span></div>
+          <div class="cell"><span class="d">D21 · Sun</span><span class="c">Customer voices</span></div>
+        </div>
+        <div class="col p4"><div class="col-head"><span class="num">P4 · D22–D28</span><span class="name">Convert</span><span class="lede">Move to act</span></div>
+          <div class="cell"><span class="d">D22 · Mon</span><span class="c">ROI calculator</span></div>
+          <div class="cell"><span class="d">D23 · Tue</span><span class="c">ZopNight $/mo</span></div>
+          <div class="cell"><span class="d">D24 · Wed</span><span class="c">ZopDay time saved</span></div>
+          <div class="cell"><span class="d">D25 · Thu</span><span class="c">Founder offer</span></div>
+          <div class="cell"><span class="d">D26 · Fri</span><span class="c">Book a call</span></div>
+          <div class="cell"><span class="d">D27 · Sat</span><span class="c">Objections</span></div>
+          <div class="cell"><span class="d">D28 · Sun</span><span class="c">Last push</span></div>
+        </div>
+        <div class="col p5"><div class="col-head"><span class="num">P5 · D29–D30</span><span class="name">Reflect</span><span class="lede">Close the loop</span></div>
+          <div class="cell"><span class="d">D29 · Mon</span><span class="c">Month wrap</span></div>
+          <div class="cell"><span class="d">D30 · Tue</span><span class="c">What ships next</span></div>
+          <div class="cell empty"><span class="d">— —</span><span class="c">Day 31?</span></div>
+          <div class="cell empty"><span class="d">— —</span><span class="c">Next month</span></div>
+          <div class="cell empty"><span class="d">— —</span><span class="c"></span></div>
+          <div class="cell empty"><span class="d">— —</span><span class="c"></span></div>
+          <div class="cell empty"><span class="d">— —</span><span class="c"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ Day 1 · Reveal</span></div>
+  </section>
+
+  <!-- 03–32 · DAY SLIDES (generated by JS below) -->
+  <div id="day-slides-mount" style="display: contents;"></div>
+
+  <!-- 33 · END -->
+  <section class="slide dark" data-title="End">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">End · 30-day plan · 06.2026</span><span class="r">33 / 33</span></div>
+    <div class="body" style="align-items: center; justify-content: center;">
+      <div class="end-stack">
+        <span class="ev" style="color: var(--g-600-d);">30 days · 30 posts · launched</span>
+        <h1 class="h1">Ship <em>it.</em></h1>
+        <div class="end-table" style="max-width: 880px;">
+          <div class="row"><span class="ph">P1</span><span class="nm">Launch</span><span class="ct">D1–D7</span></div>
+          <div class="row"><span class="ph">P2</span><span class="nm">Activate</span><span class="ct">D8–D14</span></div>
+          <div class="row"><span class="ph">P3</span><span class="nm">Amplify</span><span class="ct">D15–D21</span></div>
+          <div class="row"><span class="ph">P4</span><span class="nm">Convert</span><span class="ct">D22–D28</span></div>
+          <div class="row"><span class="ph">P5</span><span class="nm">Reflect</span><span class="ct">D29–D30</span></div>
+        </div>
+        <svg style="width: 200px; height: auto; color: var(--cream);" viewBox="0 0 715 276"><use href="#logo-zopdev"/></svg>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">— End of brief —</span></div>
+  </section>
+
+</div>
+
+<script>
+// ── 30 days of exact posts ──
+const POSTS = [
+  // Phase 1 · Launch
+  { day:1, dow:'Mon', phase:1, phaseName:'Launch', surface:'paper',
+  tile:'d1_carousel_01.png',
+    title:'Reveal',
+    hook:'Multi-cloud should feel like one product.',
+    caption:`Multi-cloud should feel like one product. It doesn't.
+
+Every Indian SaaS team I've talked to in the last year is running across two or three cloud providers, getting billed in three currencies, and asking one person on the engineering team to also be their FinOps function. The tools we have today were built for someone else.
+
+So we built ZopDev. ZopNight finds what's bleeding money in your cloud overnight and fixes it. ZopDay keeps your build, deploy, and governance workflows clean across every account.
+
+One operating layer. AWS, GCP, Azure. Read-only audit, five minutes.
+
+zop.dev`,
+    format:'6-tile carousel · 1080×1350',
+    duration:'',
+    platforms:['Founder LinkedIn','Company reshare +4h','IG feed','IG Reels']
+  },
+  { day:2, dow:'Tue', phase:1, phaseName:'Launch', surface:'dark',
+  tile:'d2_twosides_endframe_sq.png',
+    title:'Two sides',
+    hook:'Your cloud has <em>two faces.</em>',
+    caption:`Your cloud has two faces.
+
+At night, things sleep, and bleed money while they do. ZopNight finds them.
+
+By day, you're shipping. ZopDay keeps you fast and governed.
+
+One platform. Two postures.`,
+    format:'Square video · 1080×1080 · 8–10s',
+    duration:'Celestial split animation',
+    platforms:['LinkedIn','IG feed']
+  },
+  { day:3, dow:'Wed', phase:1, phaseName:'Launch', surface:'paper',
+  tile:'d3_post.png',
+    title:'POV',
+    hook:'A take on FinOps tooling.',
+    caption:`A take on FinOps tooling.
+
+It was built for the US AWS-first enterprise. The unit economics assume one cloud, one billing currency, and a dedicated FinOps team with a six-figure budget.
+
+Indian SaaS doesn't run like that. We run multi-cloud because cost arbitrage is real. We bill in INR but pay vendors in USD. Our CTOs are the FinOps team. Our resource sprawl turns over 300% every fortnight.
+
+If your tool can't see all three clouds, can't price in INR, and assumes someone has eight hours a week to triage findings, you don't have a FinOps tool. You have a dashboard.
+
+This is why we built ZopDev.`,
+    format:'Text only',
+    duration:'',
+    platforms:['Founder LinkedIn','Company reshare +4h']
+  },
+  { day:4, dow:'Thu', phase:1, phaseName:'Launch', surface:'dark',
+  tile:'d4_product_endframe_sq.png',
+    title:'Product depth',
+    hook:'What a <em>five-minute</em> audit catches.',
+    caption:`What a five-minute audit catches.
+
+380+ resource types.
+315+ audit rules.
+Read-only.
+First findings before your coffee gets cold.
+
+Run it on a non-prod account first. We will show you what we found.`,
+    format:'ZopNight UI capture · sq + vert · 20–30s',
+    duration:'Live screen recording, Remotion edit',
+    platforms:['LinkedIn','IG feed','IG Reels']
+  },
+  { day:5, dow:'Fri', phase:1, phaseName:'Launch', surface:'paper',
+  tile:'d5_carousel_01.png',
+    title:'Craft',
+    hook:'Notes on <em>redesigning</em> ZopDev.',
+    caption:`Notes on redesigning ZopDev.
+
+Multi-cloud is hard to make feel like one product. Three providers, six dashboards each, every team in the company touching it differently. The old site treated each surface separately and lost the through-line.
+
+The new system is one thin design vocabulary across every surface. Cream paper or near-black, 1px lines, square corners, two accent colors used at less than 10% of any screen. Space Grotesk for type, Inter for body.
+
+The Tetris on the final CTA was the last thing we shipped. It is the calmest version of "we are building" I could think of.`,
+    format:'9-tile carousel · 1080×1350',
+    duration:'',
+    platforms:['IG feed','LinkedIn cross-post']
+  },
+  { day:6, dow:'Sat', phase:1, phaseName:'Launch', surface:'paper',
+  tile:'d6_carousel_01.png',
+    title:'Proof',
+    hook:'What we <em>run</em> today.',
+    caption:`What we run today.
+
+McAfee · 12 AWS accounts · 48 K8s clusters
+$15M+ cloud spend under management
+154 teams
+5 of India's top 20 FMCG enterprises
+SOC 2 Type II · ISO 27001:2022
+IRDAI · DPDP · MeitY-empaneled`,
+    format:'7-tile carousel · 1080×1350',
+    duration:'',
+    platforms:['IG feed','LinkedIn']
+  },
+  { day:7, dow:'Sun', phase:1, phaseName:'Launch', surface:'dark',
+  tile:'d7_close_still_sq.png',
+    title:'Close',
+    hook:'Bring your <em>cloud.</em>',
+    caption:`Bring your cloud.
+
+Read-only connect. First findings in under five minutes, on your live cross-cloud inventory.
+
+zop.dev/signin`,
+    format:'Day 0 Tetris reuse + 1080×1080 still',
+    duration:'',
+    platforms:['LinkedIn','IG feed']
+  },
+
+  // Phase 2 · Activate
+  { day:8, dow:'Mon', phase:2, phaseName:'Activate', surface:'dark',
+  tile:'d8_post.png',
+    title:'Onboarding',
+    hook:'From cloud credential to first finding. <em>90 seconds.</em>',
+    caption:`From cloud credential to first finding. 90 seconds.
+
+What you'll see: every account, every region, every resource. Then the bleed.
+
+Connect read-only. Watch us work.
+
+zop.dev/signin`,
+    format:'Screen capture timelapse · sq + vert · 30–60s',
+    duration:'',
+    platforms:['LinkedIn','IG Reels','YT Shorts']
+  },
+  { day:9, dow:'Tue', phase:2, phaseName:'Activate', surface:'paper',
+  tile:'d9_post.png',
+    title:'ZopNight · Smart Scheduling',
+    hook:'Non-prod off. <em>By default.</em>',
+    caption:`Non-prod doesn't need to run on weekends.
+
+Smart Scheduling reads your tag rules, learns the business-hours pattern, and shuts down what shouldn't be on. No code change. No service interruption.
+
+Average estate finding: 73% of non-prod cycles can be reclaimed.
+
+zop.dev/night`,
+    format:'Live sched-grid pulse video · 15–20s',
+    duration:'',
+    platforms:['LinkedIn','IG feed']
+  },
+  { day:10, dow:'Wed', phase:2, phaseName:'Activate', surface:'dark',
+  tile:'d10_post.png',
+    title:'ZopNight · Auto-Remediation',
+    hook:'Click to fix. Or <em>don’t.</em>',
+    caption:`20 certified remediation rules. Databases never touched.
+
+We surface the finding. You decide. One-click remediation, two-click rollback, full audit log on every action.
+
+Auto-Remediation is opt-in, scope-bounded, and reversible by design.`,
+    format:'Screen capture · 20s',
+    duration:'',
+    platforms:['LinkedIn','IG feed']
+  },
+  { day:11, dow:'Thu', phase:2, phaseName:'Activate', surface:'paper',
+  tile:'d11_post.png',
+    title:'ZopDay · Push to deploy',
+    hook:'From git push to live deploy. <em>4 minutes.</em>',
+    caption:`Cloud credential → cluster spin-up → first deploy. Same day.
+
+ZopDay handles the rails:
+· Spaces, projects, RBAC
+· Provisioning, scheduling, optimizing
+· Audit logs on every action
+
+You handle the code.
+
+zop.dev/day`,
+    format:'Terminal / CLI capture · 20–30s',
+    duration:'',
+    platforms:['LinkedIn','IG feed','IG Reels']
+  },
+  { day:12, dow:'Fri', phase:2, phaseName:'Activate', surface:'dark',
+  tile:'d12_post.png',
+    title:'ZopCloud · One workspace',
+    hook:'Every cloud. <em>One credential.</em>',
+    caption:`AWS. GCP. Azure. One workspace.
+
+Bring your own credentials, keep your own keys. ZopCloud is the orchestration layer that makes multi-cloud feel like one platform.
+
+380+ resource types under one inventory.
+
+zop.dev/cloud`,
+    format:'PCB integrations board video · 15s',
+    duration:'',
+    platforms:['LinkedIn','IG feed']
+  },
+  { day:13, dow:'Sat', phase:2, phaseName:'Activate', surface:'paper',
+  tile:'d13_post.png',
+    title:'Sandbox',
+    hook:'Try without <em>signing up.</em>',
+    caption:`You don't need an account to see the product.
+
+Sandbox loads a real anonymized multi-cloud estate. Click around. Run audits. Pull a report.
+
+zop.dev/sandbox`,
+    format:'Single image · sandbox screenshot · 1080×1080',
+    duration:'',
+    platforms:['LinkedIn','IG feed']
+  },
+  { day:14, dow:'Sun', phase:2, phaseName:'Activate', surface:'paper',
+  tile:'d14_post.png',
+    title:'Week-one wrap',
+    hook:'What <em>250 audits</em> caught this week.',
+    caption:`Week one of public launch.
+
+250 audits run.
+6,400+ findings surfaced.
+$1.2M annualized spend identified.
+
+Average time from connect to first finding: 4m 18s.
+
+Methodology: zop.dev/methodology`,
+    format:'Numbers carousel · 5 tiles · 1080×1350',
+    duration:'',
+    platforms:['LinkedIn','IG feed']
+  },
+
+  // Phase 3 · Amplify
+  { day:15, dow:'Mon', phase:3, phaseName:'Amplify', surface:'paper',
+  tile:'d15_post.png',
+    title:'McAfee case',
+    hook:'<em>McAfee.</em>',
+    caption:`McAfee runs multi-cloud platform engineering on ZopDev.
+
+12 AWS accounts. 48 K8s clusters. 1,000+ req/sec in production.
+
+After 18 months:
+· 60% faster deployments, from manual and error-prone
+· 40% less audit prep across regions
+· 30% faster MTTR
+
+"Zop has been instrumental in simplifying our multi-cloud operations."
+— Mahesh Tyagarajan, VP Platform Engineering, McAfee`,
+    format:'Long-form case carousel · 6 tiles · 1080×1350',
+    duration:'',
+    platforms:['Founder + company LinkedIn','IG feed']
+  },
+  { day:16, dow:'Tue', phase:3, phaseName:'Amplify', surface:'dark',
+  tile:'d16_post.png',
+    title:'Azure F1000 case',
+    hook:'Azure Advisor caught 14%. <em>We found the rest.</em>',
+    caption:`A Fortune 1000 software co. ran ZopNight on their Azure estate. Under NDA. Real numbers.
+
+Resources: 2,140 across 3 subscriptions.
+Time to first set of recommendations: 4 weeks.
+
+Azure Advisor: 15 recommendations.
+ZopNight: 287 recommendations.
+
+Monthly recovered: $14,820 net of subscription.
+Year-1 ROI: 2.8×. Payback in under 5 months.`,
+    format:'Numbers + quote carousel · 5 tiles',
+    duration:'',
+    platforms:['LinkedIn','IG feed']
+  },
+  { day:17, dow:'Wed', phase:3, phaseName:'Amplify', surface:'paper',
+  tile:'d17_post.png',
+    title:'FMCG estate case',
+    hook:'<em>5 of India’s top 20</em> FMCG enterprises.',
+    caption:`Five of India's top 20 FMCG enterprises operate on ZopDev. We can't name them. The numbers we can share:
+
+Combined cloud spend under management: $9.4M annually.
+Combined audit findings: 14,000+ surfaced, 8,400 actioned.
+Compliance: SOC 2, ISO 27001, IRDAI, DPDP.
+
+If your industry doesn't trust public case studies, we get it. Ask for a referenceable conversation, not a logo.`,
+    format:'4-tile carousel · 1080×1350',
+    duration:'',
+    platforms:['LinkedIn']
+  },
+  { day:18, dow:'Thu', phase:3, phaseName:'Amplify', surface:'dark',
+  tile:'d18_post.png',
+    title:'India SaaS reality',
+    hook:'Three things US tools <em>assume.</em>',
+    caption:`Three things every US-built FinOps tool assumes about your stack:
+
+1. You run on one cloud (usually AWS).
+2. You bill in one currency (usually USD).
+3. You have a dedicated FinOps team with eight hours a week to triage findings.
+
+Indian SaaS runs multi-cloud because cost arbitrage is real. You bill in INR but pay vendors in USD. Your CTOs are the FinOps team. Resource sprawl turns over 300% every fortnight.
+
+Build for that. Or stop pretending to.`,
+    format:'Text + 3-tile callout carousel',
+    duration:'',
+    platforms:['Founder LinkedIn']
+  },
+  { day:19, dow:'Fri', phase:3, phaseName:'Amplify', surface:'paper',
+  tile:'d19_post.png',
+    title:'Benchmark',
+    hook:'ZopNight vs Azure Advisor. <em>Same estate.</em>',
+    caption:`Same Azure estate. Same week. Different tools.
+
+Azure Advisor:
+· 15 recommendations
+· 14% of opportunity surfaced
+
+ZopNight:
+· 287 recommendations
+· 86% of opportunity surfaced
+· Findings categorized by lens (cost, security, performance, reliability)
+
+We ran the comparison on a Fortune 1000 estate under NDA. Methodology + raw data: zop.dev/azure-benchmark`,
+    format:'Benchmark comparison carousel · 4 tiles',
+    duration:'',
+    platforms:['LinkedIn']
+  },
+  { day:20, dow:'Sat', phase:3, phaseName:'Amplify', surface:'dark',
+  tile:'d20_post.png',
+    title:'Compliance stack',
+    hook:'Audited and <em>current.</em>',
+    caption:`What ZopDev is audited against:
+
+SOC 2 Type II
+ISO 27001:2022
+IRDAI (Indian insurance regulator)
+DPDP (Digital Personal Data Protection Act)
+MeitY-empaneled
+
+Trust report, attestation letters, and current audit period dates: zop.dev/trust`,
+    format:'6-tile compliance carousel',
+    duration:'',
+    platforms:['LinkedIn']
+  },
+  { day:21, dow:'Sun', phase:3, phaseName:'Amplify', surface:'paper',
+  tile:'d21_post.png',
+    title:'Customer voices',
+    hook:'What customers <em>actually say.</em>',
+    caption:`Pulled from customer reviews this quarter. Raw quotes, anonymized titles where required.
+
+"Zop has been instrumental in simplifying our multi-cloud operations."
+— VP Platform Engineering, McAfee
+
+"We saw $14K/mo in recoverable spend the first week we connected."
+— Director, Cloud Platform · Fortune 1000
+
+"It's the only tool that actually understands we don't have a FinOps team."
+— CTO, India SaaS
+
+zop.dev/customers`,
+    format:'6-tile quotes carousel',
+    duration:'',
+    platforms:['LinkedIn','IG feed']
+  },
+
+  // Phase 4 · Convert
+  { day:22, dow:'Mon', phase:4, phaseName:'Convert', surface:'dark',
+  tile:'d22_post.png',
+    title:'ROI calculator',
+    hook:'Drop in your spend. <em>See your number.</em>',
+    caption:`You don't need a sales call to see what ZopDev would do for your estate.
+
+zop.dev/calculator
+
+Drop in your monthly cloud spend. We surface the five-customer average across:
+· Wasted spend on idle resources
+· Right-sizing opportunity
+· Scheduling opportunity
+· Reserved instance / savings plan optimization
+
+Estimated recovery: $4,200 → $84,000/mo depending on estate size.`,
+    format:'Calculator screenshot + 3-tile carousel',
+    duration:'',
+    platforms:['LinkedIn']
+  },
+  { day:23, dow:'Tue', phase:4, phaseName:'Convert', surface:'paper',
+  tile:'d23_post.png',
+    title:'ZopNight $/mo',
+    hook:'Recovered per estate, <em>broken down.</em>',
+    caption:`Monthly $ recovered, real customers, this quarter:
+
+Top decile: $84,000+/mo
+Median: $14,200/mo
+Bottom decile: $1,800/mo
+
+The variance is estate size. The pattern is consistent.
+
+Run the audit on your estate: zop.dev/audit`,
+    format:'Numbers carousel · 5 tiles',
+    duration:'',
+    platforms:['LinkedIn']
+  },
+  { day:24, dow:'Wed', phase:4, phaseName:'Convert', surface:'dark',
+  tile:'d24_post.png',
+    title:'ZopDay time saved',
+    hook:'Engineering hours <em>back.</em>',
+    caption:`Before ZopDay vs after, averaged across 40 customer teams:
+
+Time to first deploy on a new cluster: 12 days → 4 hours.
+Time to onboard a new engineer to deploy: 3 days → 30 minutes.
+Engineering hours/month on platform-ops: 180 → 24.
+
+Math: ~$240K/year of senior engineer time, back to shipping features.`,
+    format:'Before/after carousel · 4 tiles',
+    duration:'',
+    platforms:['LinkedIn']
+  },
+  { day:25, dow:'Thu', phase:4, phaseName:'Convert', surface:'paper',
+  tile:'d25_post.png',
+    title:'Founder offer',
+    hook:'Free audit. <em>First 50 teams.</em>',
+    caption:`For the next two weeks, the first 50 teams to ping me directly get a free ZopNight audit on a non-prod account.
+
+I'll personally walk you through what we found in a 30-minute call.
+
+No deck. No pitch. Your estate on the screen, our analysis next to it.
+
+DM me here, or rav@zop.dev`,
+    format:'Single image with text overlay · 1080×1080',
+    duration:'',
+    platforms:['Founder LinkedIn']
+  },
+  { day:26, dow:'Fri', phase:4, phaseName:'Convert', surface:'dark',
+  tile:'d26_post.png',
+    title:'Book a call',
+    hook:'15 minutes. <em>No deck.</em>',
+    caption:`If you're inside a 50-engineer-plus team running multi-cloud, the fastest way to see if ZopDev fits is a 15-minute screen-share.
+
+What we do in that call:
+· You show us your AWS/GCP/Azure setup
+· We run a live audit
+· We walk through the top 10 findings
+
+No deck. No PDF afterward. Just a worked example on your estate.
+
+zop.dev/book`,
+    format:'Sales CTA carousel · 3 tiles',
+    duration:'',
+    platforms:['LinkedIn']
+  },
+  { day:27, dow:'Sat', phase:4, phaseName:'Convert', surface:'paper',
+  tile:'d27_post.png',
+    title:'Objections',
+    hook:'Three things we <em>hear most.</em>',
+    caption:`Three real objections, three real answers.
+
+1. "We already have Azure Advisor / AWS Trusted Advisor."
+Yes. Those are first-party tools that surface ~14% of the opportunity. ZopNight surfaces the rest. Run both for a month, decide.
+
+2. "We can't add another vendor to our stack."
+Read-only audit. No code change. No agent install. Two-minute setup. Disconnect anytime.
+
+3. "We're not big enough yet."
+Then it'll take you 15 minutes to find out. Smallest estate we run: $4K/mo cloud spend.`,
+    format:'3-tile objections carousel',
+    duration:'',
+    platforms:['LinkedIn']
+  },
+  { day:28, dow:'Sun', phase:4, phaseName:'Convert', surface:'dark',
+  tile:'d28_post.png',
+    title:'Last push',
+    hook:'Before the <em>month ends.</em>',
+    caption:`Last day of the month.
+
+If you connected your estate this week, your first audit report is ready by Monday.
+
+zop.dev/signin`,
+    format:'Single image · clean CTA · 1080×1080',
+    duration:'',
+    platforms:['LinkedIn','IG feed']
+  },
+
+  // Phase 5 · Reflect
+  { day:29, dow:'Mon', phase:5, phaseName:'Reflect', surface:'paper',
+  tile:'d29_post.png',
+    title:'Month wrap',
+    hook:'Numbers run <em>this month.</em>',
+    caption:`Month one of public launch.
+
+1,180 audits run.
+28,400+ findings surfaced.
+$4.8M annualized spend identified.
+247 teams onboarded.
+12 of India's top 100 SaaS companies now run ZopDev.
+
+Methodology + per-customer breakdowns where consent allows: zop.dev/methodology`,
+    format:'5-tile numbers carousel · 1080×1350',
+    duration:'',
+    platforms:['LinkedIn']
+  },
+  { day:30, dow:'Tue', phase:5, phaseName:'Reflect', surface:'paper',
+  tile:'d30_post.png',
+    title:'What ships next',
+    hook:'What’s landing <em>next month.</em>',
+    caption:`Three things shipping in the next month:
+
+1. ZopNight v1.6 · Predictive scheduling, learns the rhythm of your engineering org.
+2. ZopDay · Push-to-deploy on GKE and AKS, parity with the existing EKS support.
+3. ZopCloud · OpenTofu integration, alongside Terraform.
+
+Roadmap: zop.dev/roadmap`,
+    format:'3-tile teaser carousel',
+    duration:'',
+    platforms:['LinkedIn']
+  }
+];
+
+// ── Build day slides + jump menu ──
+(function(){
+  const mount = document.getElementById('day-slides-mount');
+  const jump = document.getElementById('jump');
+
+  // Pre-populate jump menu with cover + calendar
+  const opt0 = document.createElement('option'); opt0.value = '1'; opt0.textContent = '01 · Cover'; jump.appendChild(opt0);
+  const opt1 = document.createElement('option'); opt1.value = '2'; opt1.textContent = '02 · Calendar'; jump.appendChild(opt1);
+
+  POSTS.forEach((p, i) => {
+    const slideIndex = i + 3; // slide 3..32
+    const section = document.createElement('section');
+    section.className = 'slide ' + p.surface;
+    section.dataset.title = 'D' + p.day + ' · ' + p.title;
+    section.innerHTML = `
+      <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+      <div class="strip"><span class="l">Phase ${String(p.phase).padStart(2,'0')} · ${p.phaseName}</span><span class="r">${String(slideIndex).padStart(2,'0')} / 33 · D${p.day}</span></div>
+      <div class="body">
+        <div class="day-slide-body">
+          <div class="l">
+            <div class="meta-row">
+              <span class="d-num">D<em>${p.day}</em></span>
+              <span class="phase-tag p${p.phase}">${p.phaseName}</span>
+              <span class="dow">${p.dow}</span>
+              <span class="dow">${p.title}</span>
+            </div>
+            <h2 class="hook">${p.hook}</h2>
+            <div class="caption">${p.caption}</div>
+          </div>
+          <div class="m">
+            <div class="tile-wrap"><img src="${p.tile}" alt="D${p.day} · ${p.title} · post tile" loading="lazy"></div>
+            <span class="tile-cap">${p.tile}</span>
+          </div>
+          <div class="r">
+            <div class="card">
+              <span class="k">Format</span>
+              <span class="v">${p.format}</span>
+              ${p.duration ? `<span class="k" style="margin-top: 6px;">Notes</span><span class="v" style="font-size: 14px; font-weight: 500;">${p.duration}</span>` : ''}
+            </div>
+            <div class="card">
+              <span class="k">Platforms</span>
+              <ul>${p.platforms.map(x => `<li>${x}</li>`).join('')}</ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="strip"><span class="l">zop.dev</span><span class="r">→ ${slideIndex === 32 ? 'End' : 'D' + (p.day + 1)}</span></div>
+    `;
+    mount.appendChild(section);
+
+    // Jump option for this day
+    const opt = document.createElement('option');
+    opt.value = String(slideIndex);
+    opt.textContent = `${String(slideIndex).padStart(2,'0')} · D${p.day} · ${p.title}`;
+    jump.appendChild(opt);
+  });
+
+  // Jump option for end
+  const optEnd = document.createElement('option'); optEnd.value = '33'; optEnd.textContent = '33 · End'; jump.appendChild(optEnd);
+})();
+
+// ── Deck nav ──
+(function(){
+  const deck = document.getElementById('deck');
+  const slides = deck.querySelectorAll('.slide');
+  const total = slides.length;
+  document.getElementById('tot').textContent = String(total).padStart(2, '0');
+  const cur = document.getElementById('cur');
+  const bar = document.getElementById('progress');
+  const jump = document.getElementById('jump');
+
+  function update(){
+    let i = Math.round(deck.scrollLeft / window.innerWidth);
+    i = Math.max(0, Math.min(total - 1, i));
+    cur.textContent = String(i + 1).padStart(2, '0');
+    bar.style.width = ((i + 1) / total * 100) + '%';
+    jump.value = String(i + 1);
+  }
+  function go(delta){
+    const i = Math.round(deck.scrollLeft / window.innerWidth);
+    const next = Math.max(0, Math.min(total - 1, i + delta));
+    deck.scrollTo({ left: slides[next].offsetLeft, behavior: 'smooth' });
+  }
+  function jumpTo(n){
+    const target = Math.max(0, Math.min(total - 1, parseInt(n, 10) - 1));
+    deck.scrollTo({ left: slides[target].offsetLeft, behavior: 'smooth' });
+  }
+
+  document.getElementById('prev').addEventListener('click', () => go(-1));
+  document.getElementById('next').addEventListener('click', () => go(1));
+  jump.addEventListener('change', e => jumpTo(e.target.value));
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'SELECT') return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); go(1); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(-1); }
+    if (e.key === 'Home') { e.preventDefault(); jumpTo(1); }
+    if (e.key === 'End') { e.preventDefault(); jumpTo(total); }
+  });
+  deck.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+
+  const match = window.location.search.match(/[?&]s=(\d+)/);
+  if (match) {
+    const target = Math.max(1, Math.min(total, parseInt(match[1], 10))) - 1;
+    deck.style.scrollBehavior = 'auto';
+    function pin(){ deck.scrollLeft = slides[target].offsetLeft; update(); }
+    pin(); requestAnimationFrame(pin);
+    setTimeout(pin, 100); setTimeout(pin, 500);
+    setTimeout(() => { deck.style.scrollBehavior = 'smooth'; pin(); }, 1500);
+  } else {
+    update();
+  }
+})();
+</script>
+
+</body></html>
