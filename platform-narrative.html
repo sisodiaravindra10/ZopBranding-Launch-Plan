@@ -7,7 +7,12 @@
   html, body { height: 100%; overflow: hidden; background: var(--ink-d); }
   .deck { display: flex; height: 100vh; overflow-x: scroll; overflow-y: hidden; scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   .deck::-webkit-scrollbar { display: none; }
-  .slide { flex: 0 0 100vw; width: 100vw; height: 100vh; scroll-snap-align: center; scroll-snap-stop: always; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 56px 80px; }
+  .slide { flex: 0 0 100vw; width: 100vw; min-height: 100vh; scroll-snap-align: start; scroll-snap-stop: always; position: relative; overflow-x: hidden; overflow-y: auto; display: flex; flex-direction: column; padding: 56px 80px; scrollbar-width: thin; scrollbar-color: rgba(245,133,73,0.45) transparent; }
+  .slide::-webkit-scrollbar { width: 6px; }
+  .slide::-webkit-scrollbar-track { background: transparent; }
+  .slide::-webkit-scrollbar-thumb { background: rgba(245,133,73,0.45); }
+  /* When a slide overflows vertically, a tiny hint appears bottom-right */
+  .slide.has-scroll::after { content: '↓ scroll'; position: absolute; bottom: 56px; right: 80px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--zop-orange); opacity: 0.6; pointer-events: none; }
   .slide.paper { background: var(--paper); color: var(--ink); }
   .slide.dark  { background: var(--ink-d); color: var(--cream); }
 
@@ -166,7 +171,7 @@
 
 <div class="nav-controls">
   <button id="prev" aria-label="Previous slide">←</button>
-  <span class="pos"><b id="cur">01</b> / <span id="tot">09</span></span>
+  <span class="pos"><b id="cur">01</b> / <span id="tot">16</span></span>
   <button id="next" aria-label="Next slide">→</button>
 </div>
 
@@ -175,7 +180,7 @@
   <!-- 01 · COVER -->
   <section class="slide paper">
     <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
-    <div class="strip"><span class="l">§ · Narrative shift · CEO brief · 05.2026</span><span class="r">01 / 09 · Cover</span></div>
+    <div class="strip"><span class="l">§ · Narrative shift · CEO brief · 05.2026</span><span class="r">01 / 16 · Cover</span></div>
     <div class="body" style="align-items: flex-start;">
       <div class="cover">
         <span class="ev">A pivot, not a refresh</span>
@@ -190,7 +195,7 @@
   <!-- 02 · PROBLEM SURFACE -->
   <section class="slide dark">
     <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
-    <div class="strip"><span class="l">01 · Problem surface · go deeper</span><span class="r">02 / 09</span></div>
+    <div class="strip"><span class="l">01 · Problem surface · go deeper</span><span class="r">02 / 16</span></div>
     <div class="body">
       <div class="problem-block">
         <div class="left">
@@ -221,13 +226,58 @@
         </div>
       </div>
     </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ A CTO's day</span></div>
+  </section>
+
+
+  <!-- 03 · CTO DAY-IN-THE-LIFE -->
+  <section class="slide paper">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">01 · Problem · go deeper</span><span class="r">03 / 16</span></div>
+    <div class="body" style="flex-direction: column; gap: 28px; padding: 0;">
+      <span class="ev">A Wednesday in the CTO's calendar</span>
+      <h2 class="h2">The day has a <em>tax.</em><br>It doesn't show up on any invoice.</h2>
+      <div style="display: flex; flex-direction: column; margin-top: 8px; border-top: 1px solid var(--line);">
+        <div style="display: grid; grid-template-columns: 110px 1fr 200px; gap: 24px; padding: 18px 0; border-bottom: 1px solid var(--line); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 16px; letter-spacing: 0.12em; color: var(--zop-orange);">09:00</span>
+          <span style="font-family: var(--font); font-weight: 500; font-size: 22px; letter-spacing: -0.02em; line-height: 1.3;">Standup. Engineer mentions Datadog flagged a node at 2am. No one knows why.</span>
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--g-500); text-align: right;">Tool · Datadog</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 110px 1fr 200px; gap: 24px; padding: 18px 0; border-bottom: 1px solid var(--line); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 16px; letter-spacing: 0.12em; color: var(--zop-orange);">10:30</span>
+          <span style="font-family: var(--font); font-weight: 500; font-size: 22px; letter-spacing: -0.02em; line-height: 1.3;">Vantage report drops. <em>23 idle resources</em> across AWS + GCP. Someone has to triage.</span>
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--g-500); text-align: right;">Tool · Vantage</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 110px 1fr 200px; gap: 24px; padding: 18px 0; border-bottom: 1px solid var(--line); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 16px; letter-spacing: 0.12em; color: var(--zop-orange);">13:00</span>
+          <span style="font-family: var(--font); font-weight: 500; font-size: 22px; letter-spacing: -0.02em; line-height: 1.3;">Backstage onboarding for new hire. Login <em>#4</em> of the day. They give up before lunch.</span>
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--g-500); text-align: right;">Tool · Backstage</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 110px 1fr 200px; gap: 24px; padding: 18px 0; border-bottom: 1px solid var(--line); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 16px; letter-spacing: 0.12em; color: var(--zop-orange);">14:30</span>
+          <span style="font-family: var(--font); font-weight: 500; font-size: 22px; letter-spacing: -0.02em; line-height: 1.3;">CFO review. Cloud bill up <em>18%.</em> Reasons? Three dashboards open. Three different answers.</span>
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--g-500); text-align: right;">Tools · 3</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 110px 1fr 200px; gap: 24px; padding: 18px 0; border-bottom: 1px solid var(--line); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 16px; letter-spacing: 0.12em; color: var(--zop-orange);">16:00</span>
+          <span style="font-family: var(--font); font-weight: 500; font-size: 22px; letter-spacing: -0.02em; line-height: 1.3;">SOC 2 audit prep. <em>14 tools.</em> Evidence collection runs to a spreadsheet at midnight.</span>
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--g-500); text-align: right;">Tool · Drata + Sheets</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 110px 1fr 200px; gap: 24px; padding: 18px 0; align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 16px; letter-spacing: 0.12em; color: var(--zop-orange);">17:30</span>
+          <span style="font-family: var(--font); font-weight: 500; font-size: 22px; letter-spacing: -0.02em; line-height: 1.3;">Slack ping from co-founder: <em>"Why is staging still on?"</em> No one is sure.</span>
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--g-500); text-align: right;">Tool · Slack + console</span>
+        </div>
+      </div>
+      <p class="sub" style="color: var(--g-700); max-width: 1100px; margin-top: 8px;">This is the day. Every day. <em>Multi-cloud has a tax.</em> It does not show up on any invoice.</p>
+    </div>
     <div class="strip"><span class="l">zop.dev</span><span class="r">→ The misframe</span></div>
   </section>
 
   <!-- 03 · THE MISFRAME -->
   <section class="slide paper">
     <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
-    <div class="strip"><span class="l">02 · Misframe · stop selling features</span><span class="r">03 / 09</span></div>
+    <div class="strip"><span class="l">02 · Misframe · stop selling features</span><span class="r">04 / 16</span></div>
     <div class="body">
       <div class="misframe">
         <span class="ev">A correction we have to make</span>
@@ -244,7 +294,7 @@
   <section class="slide dark">
     <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
     <div class="tet-bg"><canvas id="tet-canvas"></canvas></div>
-    <div class="strip"><span class="l">03 · Tetris · extend the metaphor</span><span class="r">04 / 09</span></div>
+    <div class="strip"><span class="l">03 · Tetris · extend the metaphor</span><span class="r">05 / 16</span></div>
     <div class="body" style="flex-direction: column; gap: 28px; align-items: flex-start;">
       <div style="display: flex; flex-direction: column; gap: 16px; max-width: 1200px;">
         <span class="ev" style="color: var(--g-600-d);">From bookend to brand</span>
@@ -314,13 +364,75 @@
         </div>
       </div>
     </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ Tetris content matrix</span></div>
+  </section>
+
+
+  <!-- 06 · TETRIS CONTENT MATRIX -->
+  <section class="slide paper">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">03 · Tetris · the content matrix</span><span class="r">06 / 16</span></div>
+    <div class="body" style="flex-direction: column; gap: 24px; padding: 0;">
+      <span class="ev">Where each layer of the game shows up</span>
+      <h2 class="h2">One game.<br><em>Thirty plays.</em></h2>
+      <div style="display: grid; grid-template-columns: 140px 1fr 180px 200px; gap: 16px; margin-top: 12px; border-top: 1px solid var(--line); padding-top: 16px;">
+        <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g-500);">Day</span>
+        <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g-500);">Post</span>
+        <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g-500);">Tetris layer</span>
+        <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g-500); text-align: right;">Motion</span>
+      </div>
+      <div style="display: flex; flex-direction: column; border-top: 1px solid var(--line);">
+        <div style="display: grid; grid-template-columns: 140px 1fr 180px 200px; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 14px; letter-spacing: 0.14em; color: var(--zop-orange);">D0 · Tease</span>
+          <span style="font-family: var(--font); font-weight: 600; font-size: 20px; letter-spacing: -0.02em;">we are building.</span>
+          <span style="font-family: var(--font); font-weight: 600; font-size: 18px; letter-spacing: -0.02em;">L1 · <em>In market</em></span>
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--g-600); text-align: right;">Falling pieces</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 140px 1fr 180px 200px; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 14px; letter-spacing: 0.14em; color: var(--zop-orange);">D2 · Two sides</span>
+          <span style="font-family: var(--font); font-weight: 600; font-size: 20px; letter-spacing: -0.02em;">your cloud has two faces.</span>
+          <span style="font-family: var(--font); font-weight: 600; font-size: 18px; letter-spacing: -0.02em;">L4 · <em>The grid</em></span>
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--g-600); text-align: right;">Split board</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 140px 1fr 180px 200px; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 14px; letter-spacing: 0.14em; color: var(--zop-orange);">D4 · Product</span>
+          <span style="font-family: var(--font); font-weight: 600; font-size: 20px; letter-spacing: -0.02em;">a five-minute audit.</span>
+          <span style="font-family: var(--font); font-weight: 600; font-size: 18px; letter-spacing: -0.02em;">L2 · <em>Lines clear</em></span>
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--g-600); text-align: right;">Rows clearing</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 140px 1fr 180px 200px; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 14px; letter-spacing: 0.14em; color: var(--zop-orange);">D11 · ZopDay</span>
+          <span style="font-family: var(--font); font-weight: 600; font-size: 20px; letter-spacing: -0.02em;">push to deploy. 4 minutes.</span>
+          <span style="font-family: var(--font); font-weight: 600; font-size: 18px; letter-spacing: -0.02em;">L3 · <em>Pieces lock</em></span>
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--g-600); text-align: right;">Single drop</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 140px 1fr 180px 200px; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 14px; letter-spacing: 0.14em; color: var(--zop-orange);">D14 · Wrap</span>
+          <span style="font-family: var(--font); font-weight: 600; font-size: 20px; letter-spacing: -0.02em;">what 250 audits caught.</span>
+          <span style="font-family: var(--font); font-weight: 600; font-size: 18px; letter-spacing: -0.02em;">L4 · <em>Grid full</em></span>
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--g-600); text-align: right;">Time-lapse fill</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 140px 1fr 180px 200px; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 14px; letter-spacing: 0.14em; color: var(--zop-orange);">D29 · Month wrap</span>
+          <span style="font-family: var(--font); font-weight: 600; font-size: 20px; letter-spacing: -0.02em;">$4.8M identified.</span>
+          <span style="font-family: var(--font); font-weight: 600; font-size: 18px; letter-spacing: -0.02em;">L2 · <em>Lines clear</em></span>
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--g-600); text-align: right;">Multi-row clear</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 140px 1fr 180px 200px; gap: 16px; padding: 16px 0; align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 14px; letter-spacing: 0.14em; color: var(--zop-orange);">D7 · Close</span>
+          <span style="font-family: var(--font); font-weight: 600; font-size: 20px; letter-spacing: -0.02em;">bring your cloud.</span>
+          <span style="font-family: var(--font); font-weight: 600; font-size: 18px; letter-spacing: -0.02em;">L1 · <em>Bookend</em></span>
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--g-600); text-align: right;">Reuse D0 loop</span>
+        </div>
+      </div>
+    </div>
     <div class="strip"><span class="l">zop.dev</span><span class="r">→ ZopNight as one-stop</span></div>
   </section>
 
   <!-- 05 · ZOPNIGHT ONE-STOP -->
   <section class="slide paper">
     <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
-    <div class="strip"><span class="l">04 · ZopNight · one-stop, not bundle</span><span class="r">05 / 09</span></div>
+    <div class="strip"><span class="l">04 · ZopNight · one-stop, not bundle</span><span class="r">07 / 16</span></div>
     <div class="body">
       <div class="night-block">
         <div class="left">
@@ -339,13 +451,89 @@
         </div>
       </div>
     </div>
-    <div class="strip"><span class="l">zop.dev/night</span><span class="r">→ The only platform</span></div>
+    <div class="strip"><span class="l">zop.dev/night</span><span class="r">→ Outcomes, not features</span></div>
+  </section>
+
+
+  <!-- 08 · OUTCOME STACK -->
+  <section class="slide dark">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">04 · ZopNight · outcomes, not features</span><span class="r">08 / 16</span></div>
+    <div class="body" style="flex-direction: column; gap: 28px; padding: 0;">
+      <span class="ev" style="color: var(--g-600-d);">A two-column rewrite</span>
+      <h2 class="h2" style="color: var(--cream);">What you <em>say.</em><br>What you <em>sell.</em></h2>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 12px;">
+        <div style="border: 1px solid var(--line-d); padding: 32px;">
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--g-600-d);">What you say · feature stack</span>
+          <div style="margin-top: 18px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="font-family: var(--font); font-weight: 500; font-size: 22px; letter-spacing: -0.02em; color: var(--g-600-d); text-decoration: line-through;">Smart Scheduling</div>
+            <div style="font-family: var(--font); font-weight: 500; font-size: 22px; letter-spacing: -0.02em; color: var(--g-600-d); text-decoration: line-through;">Auto-Remediation</div>
+            <div style="font-family: var(--font); font-weight: 500; font-size: 22px; letter-spacing: -0.02em; color: var(--g-600-d); text-decoration: line-through;">Right-sizing engine</div>
+            <div style="font-family: var(--font); font-weight: 500; font-size: 22px; letter-spacing: -0.02em; color: var(--g-600-d); text-decoration: line-through;">Tag audit</div>
+            <div style="font-family: var(--font); font-weight: 500; font-size: 22px; letter-spacing: -0.02em; color: var(--g-600-d); text-decoration: line-through;">Recommendations Engine</div>
+            <div style="font-family: var(--font); font-weight: 500; font-size: 22px; letter-spacing: -0.02em; color: var(--g-600-d); text-decoration: line-through;">Drift detection</div>
+          </div>
+          <p style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g-600-d); margin-top: 24px;">Reads like every other tool.</p>
+        </div>
+        <div style="border: 1px solid var(--zop-orange); padding: 32px; background: rgba(245,133,73,0.04);">
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--zop-orange);">What you sell · outcome stack</span>
+          <div style="margin-top: 18px; display: flex; flex-direction: column; gap: 14px;">
+            <div style="font-family: var(--font); font-weight: 600; font-size: 24px; letter-spacing: -0.025em; color: var(--cream); line-height: 1.25;">Your cloud is right-sized at <em>8am.</em></div>
+            <div style="font-family: var(--font); font-weight: 600; font-size: 24px; letter-spacing: -0.025em; color: var(--cream); line-height: 1.25;">Your wasted spend is <em>gone.</em></div>
+            <div style="font-family: var(--font); font-weight: 600; font-size: 24px; letter-spacing: -0.025em; color: var(--cream); line-height: 1.25;">You don't pay for tags <em>that don't exist.</em></div>
+            <div style="font-family: var(--font); font-weight: 600; font-size: 24px; letter-spacing: -0.025em; color: var(--cream); line-height: 1.25;">You don't open a console <em>at 11pm</em> on a Friday.</div>
+          </div>
+          <p style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--zop-orange); margin-top: 24px;">Reads like a change in your life.</p>
+        </div>
+      </div>
+      <p class="sub" style="color: var(--g-600-d); max-width: 1100px; margin-top: 12px;">The pivot is verbal. Features sound like features. Outcomes sound like <em>the change you experience.</em></p>
+    </div>
+    <div class="strip"><span class="l">zop.dev/night</span><span class="r">→ The category claim</span></div>
+  </section>
+
+  <!-- 09 · CATEGORY CLAIM -->
+  <section class="slide paper">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">05 · Category · name it, own it</span><span class="r">09 / 16</span></div>
+    <div class="body" style="flex-direction: column; gap: 28px; padding: 0;">
+      <span class="ev">First, name the thing. Then, own it.</span>
+      <h2 class="h2"><em>CloudOps</em> is the category<br>we are creating.</h2>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 56px; margin-top: 16px;">
+        <div style="display: flex; flex-direction: column; gap: 18px;">
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--g-600);">Definition</span>
+          <p style="font-family: var(--font); font-weight: 600; font-size: 36px; letter-spacing: -0.03em; line-height: 1.15; color: var(--ink);">CloudOps · <em>one operating layer</em> for everything you do on cloud. Build. Deploy. Govern.</p>
+          <p style="font-family: var(--font-body); font-size: 18px; line-height: 1.55; color: var(--g-700); max-width: 540px;">Not a tool. Not a bundle of tools. A single substrate where every cloud action happens, gets audited, and gets reasoned about by one team on one screen.</p>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 18px;">
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--g-600);">Precedent</span>
+          <div style="display: flex; flex-direction: column; gap: 0; border-top: 1px solid var(--line);">
+            <div style="padding: 18px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 120px 1fr; gap: 18px; align-items: baseline;">
+              <span style="font-family: var(--mono); font-weight: 600; font-size: 14px; letter-spacing: 0.14em; color: var(--zop-orange);">DevOps</span>
+              <span style="font-family: var(--font); font-weight: 500; font-size: 18px; letter-spacing: -0.02em; line-height: 1.4;">Named in 2009. Tools followed.</span>
+            </div>
+            <div style="padding: 18px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 120px 1fr; gap: 18px; align-items: baseline;">
+              <span style="font-family: var(--mono); font-weight: 600; font-size: 14px; letter-spacing: 0.14em; color: var(--zop-orange);">FinOps</span>
+              <span style="font-family: var(--font); font-weight: 500; font-size: 18px; letter-spacing: -0.02em; line-height: 1.4;">Named in 2018. Tools followed.</span>
+            </div>
+            <div style="padding: 18px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 120px 1fr; gap: 18px; align-items: baseline;">
+              <span style="font-family: var(--mono); font-weight: 600; font-size: 14px; letter-spacing: 0.14em; color: var(--zop-orange);">Platform Eng</span>
+              <span style="font-family: var(--font); font-weight: 500; font-size: 18px; letter-spacing: -0.02em; line-height: 1.4;">Named in 2022. Tools follow now.</span>
+            </div>
+            <div style="padding: 18px 0; display: grid; grid-template-columns: 120px 1fr; gap: 18px; align-items: baseline;">
+              <span style="font-family: var(--mono); font-weight: 700; font-size: 14px; letter-spacing: 0.14em; color: var(--ink);">CloudOps</span>
+              <span style="font-family: var(--font); font-weight: 700; font-size: 22px; letter-spacing: -0.025em; line-height: 1.3; color: var(--ink);">2026. <em>Named by ZopDev.</em></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ The only platform</span></div>
   </section>
 
   <!-- 06 · ONLY PLATFORM -->
   <section class="slide dark">
     <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
-    <div class="strip"><span class="l">05 · Position · the only CloudOps platform</span><span class="r">06 / 09</span></div>
+    <div class="strip"><span class="l">05 · Position · the only CloudOps platform</span><span class="r">10 / 16</span></div>
     <div class="body" style="flex-direction: column; gap: 24px;">
       <div style="display: flex; flex-direction: column; gap: 12px;">
         <span class="ev" style="color: var(--g-600-d);">There is no other</span>
@@ -381,13 +569,43 @@
         </div>
       </div>
     </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ The competitive moat</span></div>
+  </section>
+
+
+  <!-- 11 · COMPETITIVE MOAT -->
+  <section class="slide dark">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">06 · Moat · why no one else can</span><span class="r">11 / 16</span></div>
+    <div class="body" style="flex-direction: column; gap: 28px; padding: 0;">
+      <span class="ev" style="color: var(--g-600-d);">Three structural reasons</span>
+      <h2 class="h2" style="color: var(--cream);">The stack is <em>the moat.</em></h2>
+      <div style="display: flex; flex-direction: column; margin-top: 12px; border-top: 1px solid var(--line-d);">
+        <div style="display: grid; grid-template-columns: 60px 1fr 1fr; gap: 36px; padding: 28px 0; border-bottom: 1px solid var(--line-d); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 18px; letter-spacing: 0.14em; color: var(--zop-orange);">01</span>
+          <span style="font-family: var(--font); font-weight: 700; font-size: 30px; letter-spacing: -0.025em; color: var(--cream); line-height: 1.15;">Multi-cloud parity, <em>day one.</em></span>
+          <span style="font-family: var(--font); font-weight: 400; font-size: 17px; line-height: 1.55; color: var(--g-600-d);">US tools are AWS-first, then bolted on GCP and Azure. ZopDev was cloud-equal at the architecture decision. You can't retrofit that.</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 60px 1fr 1fr; gap: 36px; padding: 28px 0; border-bottom: 1px solid var(--line-d); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 18px; letter-spacing: 0.14em; color: var(--zop-orange);">02</span>
+          <span style="font-family: var(--font); font-weight: 700; font-size: 30px; letter-spacing: -0.025em; color: var(--cream); line-height: 1.15;">Built for <em>India SaaS economics.</em></span>
+          <span style="font-family: var(--font); font-weight: 400; font-size: 17px; line-height: 1.55; color: var(--g-600-d);">INR billing. CTO-as-FinOps-team. 300% fortnightly sprawl. US-built tools assume a six-figure FinOps budget. We assume one person with eight other jobs.</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 60px 1fr 1fr; gap: 36px; padding: 28px 0; align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 18px; letter-spacing: 0.14em; color: var(--zop-orange);">03</span>
+          <span style="font-family: var(--font); font-weight: 700; font-size: 30px; letter-spacing: -0.025em; color: var(--cream); line-height: 1.15;">One operating layer. <em>Not 5 acquisitions.</em></span>
+          <span style="font-family: var(--font); font-weight: 400; font-size: 17px; line-height: 1.55; color: var(--g-600-d);">Datadog bought Cloudcraft. Wiz bought 4 companies. Every "platform" in the category is duct-taped from acquisitions. ZopDev is one codebase, one data model, one team.</span>
+        </div>
+      </div>
+      <p class="sub" style="color: var(--g-600-d); max-width: 1100px; margin-top: 12px;">A competitor can copy a feature in a quarter. They cannot copy <em>the stack we are built on.</em></p>
+    </div>
     <div class="strip"><span class="l">zop.dev</span><span class="r">→ Sell the platform</span></div>
   </section>
 
   <!-- 07 · SELL THE PLATFORM -->
   <section class="slide paper">
     <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
-    <div class="strip"><span class="l">06 · Sell · ground, not bricks</span><span class="r">07 / 09</span></div>
+    <div class="strip"><span class="l">06 · Sell · ground, not bricks</span><span class="r">12 / 16</span></div>
     <div class="body">
       <div class="framework">
         <span class="ev" style="margin-bottom: 8px;">A framework for every pitch this month</span>
@@ -409,13 +627,50 @@
         </div>
       </div>
     </div>
-    <div class="strip"><span class="l">zop.dev</span><span class="r">→ The action list</span></div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ Five conversation openers</span></div>
+  </section>
+
+
+  <!-- 13 · SALES PLAYBOOK -->
+  <section class="slide paper">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">07 · Playbook · five conversation openers</span><span class="r">13 / 16</span></div>
+    <div class="body" style="flex-direction: column; gap: 24px; padding: 0;">
+      <span class="ev">Replace the demo opener with these</span>
+      <h2 class="h2">Five <em>openers.</em></h2>
+      <div style="display: flex; flex-direction: column; margin-top: 8px; border-top: 1px solid var(--line);">
+        <div style="display: grid; grid-template-columns: 60px 1fr; gap: 28px; padding: 22px 0; border-bottom: 1px solid var(--line); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 18px; letter-spacing: 0.14em; color: var(--zop-orange);">01</span>
+          <div style="font-family: var(--font); font-weight: 600; font-size: 28px; letter-spacing: -0.025em; line-height: 1.25; color: var(--ink);">"How many tools are you running across <em>AWS, GCP, and Azure</em> today?"</div>
+        </div>
+        <div style="display: grid; grid-template-columns: 60px 1fr; gap: 28px; padding: 22px 0; border-bottom: 1px solid var(--line); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 18px; letter-spacing: 0.14em; color: var(--zop-orange);">02</span>
+          <div style="font-family: var(--font); font-weight: 600; font-size: 28px; letter-spacing: -0.025em; line-height: 1.25; color: var(--ink);">"Who owns FinOps in your org? <em>Yes, the CTO</em> is an acceptable answer."</div>
+        </div>
+        <div style="display: grid; grid-template-columns: 60px 1fr; gap: 28px; padding: 22px 0; border-bottom: 1px solid var(--line); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 18px; letter-spacing: 0.14em; color: var(--zop-orange);">03</span>
+          <div style="font-family: var(--font); font-weight: 600; font-size: 28px; letter-spacing: -0.025em; line-height: 1.25; color: var(--ink);">"What's the <em>gap</em> between your cloud bill and what you actually use?"</div>
+        </div>
+        <div style="display: grid; grid-template-columns: 60px 1fr; gap: 28px; padding: 22px 0; border-bottom: 1px solid var(--line); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 18px; letter-spacing: 0.14em; color: var(--zop-orange);">04</span>
+          <div style="font-family: var(--font); font-weight: 600; font-size: 28px; letter-spacing: -0.025em; line-height: 1.25; color: var(--ink);">"If you fired <em>half</em> your stitching stack tomorrow, what would break?"</div>
+        </div>
+        <div style="display: grid; grid-template-columns: 60px 1fr; gap: 28px; padding: 22px 0; align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 18px; letter-spacing: 0.14em; color: var(--zop-orange);">05</span>
+          <div style="font-family: var(--font); font-weight: 600; font-size: 28px; letter-spacing: -0.025em; line-height: 1.25; color: var(--ink);">"Is your platform team <em>building product</em>, or running cloud?"</div>
+        </div>
+      </div>
+      <div style="margin-top: 16px; padding: 24px 28px; border: 1px solid var(--zop-orange); background: rgba(245,133,73,0.06);">
+        <p style="font-family: var(--font); font-weight: 600; font-size: 24px; letter-spacing: -0.025em; line-height: 1.3; color: var(--ink);">Each one ends with: <em>"Let me show you the place where this stops being your problem."</em></p>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ Five shifts this month</span></div>
   </section>
 
   <!-- 08 · ACTION -->
   <section class="slide paper">
     <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
-    <div class="strip"><span class="l">07 · Action · 5 shifts this month</span><span class="r">08 / 09</span></div>
+    <div class="strip"><span class="l">07 · Action · 5 shifts this month</span><span class="r">14 / 16</span></div>
     <div class="body">
       <div class="action">
         <span class="ev">What changes in the next 30 days</span>
@@ -429,13 +684,53 @@
         </div>
       </div>
     </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ Rollout timeline</span></div>
+  </section>
+
+
+  <!-- 15 · ROLLOUT TIMELINE -->
+  <section class="slide dark">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">08 · Rollout · when each shift lands</span><span class="r">15 / 16</span></div>
+    <div class="body" style="flex-direction: column; gap: 28px; padding: 0;">
+      <span class="ev" style="color: var(--g-600-d);">30 days, then it is just how we talk</span>
+      <h2 class="h2" style="color: var(--cream);">The <em>schedule.</em></h2>
+      <div style="display: flex; flex-direction: column; margin-top: 12px; border-top: 1px solid var(--line-d);">
+        <div style="display: grid; grid-template-columns: 160px 1fr 220px; gap: 28px; padding: 24px 0; border-bottom: 1px solid var(--line-d); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 14px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--zop-orange);">This week</span>
+          <span style="font-family: var(--font); font-weight: 600; font-size: 26px; letter-spacing: -0.025em; line-height: 1.25; color: var(--cream);">Homepage hero rewrite. <em>"Platform. Not a bundle."</em></span>
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g-600-d); text-align: right;">Marketing · Brand · 5 days</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 160px 1fr 220px; gap: 28px; padding: 24px 0; border-bottom: 1px solid var(--line-d); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 14px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--zop-orange);">Week 2</span>
+          <span style="font-family: var(--font); font-weight: 600; font-size: 26px; letter-spacing: -0.025em; line-height: 1.25; color: var(--cream);">D4 re-edit + <em>stitched-stack vs ZopDev</em> carousel.</span>
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g-600-d); text-align: right;">Marketing · Design</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 160px 1fr 220px; gap: 28px; padding: 24px 0; border-bottom: 1px solid var(--line-d); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 14px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--zop-orange);">Week 3</span>
+          <span style="font-family: var(--font); font-weight: 600; font-size: 26px; letter-spacing: -0.025em; line-height: 1.25; color: var(--cream);">Tetris extension shipped across <em>D2, D5, D14.</em> Three motion clips.</span>
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g-600-d); text-align: right;">Motion · 3 short clips</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 160px 1fr 220px; gap: 28px; padding: 24px 0; border-bottom: 1px solid var(--line-d); align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 14px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--zop-orange);">Week 4</span>
+          <span style="font-family: var(--font); font-weight: 600; font-size: 26px; letter-spacing: -0.025em; line-height: 1.25; color: var(--cream);">Founder LinkedIn cadence kicks in. <em>One platform post per week.</em></span>
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g-600-d); text-align: right;">Founder · ongoing</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 160px 1fr 220px; gap: 28px; padding: 24px 0; align-items: baseline;">
+          <span style="font-family: var(--mono); font-weight: 600; font-size: 14px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--zop-orange);">Month 2</span>
+          <span style="font-family: var(--font); font-weight: 600; font-size: 26px; letter-spacing: -0.025em; line-height: 1.25; color: var(--cream);">Sales playbook trained. <em>Pipeline reset.</em> All decks updated.</span>
+          <span style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g-600-d); text-align: right;">Sales · Founder · 30 days</span>
+        </div>
+      </div>
+      <p class="sub" style="color: var(--g-600-d); max-width: 1100px; margin-top: 12px;">30 days. Then it is just <em>how we talk.</em></p>
+    </div>
     <div class="strip"><span class="l">zop.dev</span><span class="r">→ End</span></div>
   </section>
 
   <!-- 09 · END -->
   <section class="slide dark">
     <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
-    <div class="strip"><span class="l">End · Narrative shift · 05.2026</span><span class="r">09 / 09</span></div>
+    <div class="strip"><span class="l">End · Narrative shift · 05.2026</span><span class="r">16 / 16</span></div>
     <div class="body" style="align-items: center; justify-content: center;">
       <div class="end-stack">
         <span class="ev">One game. Four meanings. One platform.</span>
@@ -480,6 +775,19 @@
   });
   deck.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', update);
+
+  // Add .has-scroll to any slide whose content exceeds the viewport
+  function markScrollable(){
+    slides.forEach(function(s){
+      if (s.scrollHeight > s.clientHeight + 4) s.classList.add('has-scroll');
+      else s.classList.remove('has-scroll');
+    });
+  }
+  window.addEventListener('resize', markScrollable);
+  // Run on load and again after fonts/images settle
+  markScrollable();
+  setTimeout(markScrollable, 300);
+  setTimeout(markScrollable, 1200);
 
   var match = window.location.search.match(/[?&]s=(\d+)/);
   if (match) {
