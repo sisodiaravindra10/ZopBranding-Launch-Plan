@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>D27 · Convert · D27 · Objections · 3 things we hear</title>
+<link rel="stylesheet" href="kit.css">
+<style>
+  .canvas { width: 1080px; height: 1350px; padding: 80px 80px; display: flex; flex-direction: column; }
+  .canvas.paper { background: var(--paper); color: var(--ink); }
+  .canvas.dark  { background: var(--ink-d); color: var(--cream); }
+  .top { display: flex; justify-content: space-between; align-items: center; }
+  .top .l { font-family: var(--mono); font-weight: 500; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 12px; }
+  .top .l::before { content: ''; width: 10px; height: 10px; background: var(--zop-orange); }
+  .top .pg { font-family: var(--mono); font-weight: 500; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; }
+  .canvas.paper .top .l, .canvas.paper .top .pg { color: var(--g-600); }
+  .canvas.dark  .top .l, .canvas.dark  .top .pg { color: var(--g-600-d); }
+  .foot { margin-top: auto; padding-top: 28px; border-top: 1px solid currentColor; display: flex; justify-content: space-between; align-items: flex-end; font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .canvas.paper .foot { border-top-color: var(--line); color: var(--g-600); }
+  .canvas.dark  .foot { border-top-color: var(--line-d); color: var(--g-600-d); }
+  .sig { position: absolute; width: 10px; height: 10px; background: var(--zop-orange); bottom: 32px; right: 32px; }
+  .cross { position: absolute; width: 8px; height: 8px; opacity: 0.4; }
+  .canvas.paper .cross { color: var(--line); }
+  .canvas.dark  .cross { color: var(--line-d); }
+  .cross::before, .cross::after { content: ''; position: absolute; background: currentColor; }
+  .cross::before { left: 0; right: 0; top: 50%; height: 1px; }
+  .cross::after  { top: 0; bottom: 0; left: 50%; width: 1px; }
+  em { font-style: normal; color: var(--zop-orange); }
+
+  /* Templates */
+  .body { flex: 1; display: flex; flex-direction: column; }
+
+  /* Cover: centered headline */
+  .body.cover { justify-content: center; gap: 32px; }
+  .body.cover .hook { font-family: var(--font); font-weight: 700; font-size: 124px; line-height: 0.95; letter-spacing: -0.045em; max-width: 920px; }
+  .body.cover .sub { font-family: var(--font); font-weight: 500; font-size: 32px; line-height: 1.25; letter-spacing: -0.025em; max-width: 800px; }
+  .canvas.paper .body.cover .sub { color: var(--g-700); }
+  .canvas.dark  .body.cover .sub { color: var(--g-600-d); }
+
+  /* Stat: hook on top, big number on bottom */
+  .body.stat { justify-content: space-between; padding-top: 24px; padding-bottom: 12px; }
+  .body.stat .hook { font-family: var(--font); font-weight: 700; font-size: 88px; line-height: 0.98; letter-spacing: -0.04em; max-width: 920px; }
+  .body.stat .num-block { display: flex; flex-direction: column; gap: 16px; padding-top: 28px; border-top: 1px solid currentColor; }
+  .canvas.paper .body.stat .num-block { border-top-color: var(--line); }
+  .canvas.dark  .body.stat .num-block { border-top-color: var(--line-d); }
+  .body.stat .bignum { font-family: var(--font); font-weight: 700; font-size: 240px; line-height: 0.88; letter-spacing: -0.06em; }
+  .body.stat .numLabel { font-family: var(--mono); font-size: 16px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .canvas.paper .body.stat .numLabel { color: var(--g-600); }
+  .canvas.dark  .body.stat .numLabel { color: var(--g-600-d); }
+
+  /* List: hook + 3-row list */
+  .body.list { justify-content: center; gap: 36px; }
+  .body.list .hook { font-family: var(--font); font-weight: 700; font-size: 88px; line-height: 0.98; letter-spacing: -0.04em; max-width: 920px; }
+  .body.list .items { display: flex; flex-direction: column; gap: 0; }
+  .body.list .item { display: flex; flex-direction: column; gap: 8px; padding: 22px 0; border-bottom: 1px solid currentColor; }
+  .body.list .item:last-child { border-bottom: 0; }
+  .canvas.paper .body.list .item { border-bottom-color: var(--line); }
+  .canvas.dark  .body.list .item { border-bottom-color: var(--line-d); }
+  .body.list .item .h { font-family: var(--font); font-weight: 600; font-size: 36px; letter-spacing: -0.025em; line-height: 1.05; }
+  .body.list .item .h em { color: var(--zop-orange); }
+  .body.list .item .d { font-family: var(--font-body); font-size: 18px; line-height: 1.45; }
+  .canvas.paper .body.list .item .d { color: var(--g-600); }
+  .canvas.dark  .body.list .item .d { color: var(--g-600-d); }
+
+  /* Quote */
+  .body.quote { justify-content: center; gap: 32px; }
+  .body.quote .hook { font-family: var(--font); font-weight: 700; font-size: 64px; line-height: 1.0; letter-spacing: -0.035em; max-width: 880px; }
+  .body.quote .q { font-family: var(--font); font-weight: 500; font-size: 44px; line-height: 1.15; letter-spacing: -0.025em; border-left: 6px solid var(--zop-orange); padding-left: 32px; max-width: 880px; }
+  .canvas.paper .body.quote .q { color: var(--ink); }
+  .canvas.dark  .body.quote .q { color: var(--cream); }
+  .body.quote .attr { padding-left: 38px; display: flex; flex-direction: column; gap: 4px; }
+  .body.quote .attr .n { font-family: var(--font); font-weight: 600; font-size: 22px; letter-spacing: -0.02em; }
+  .body.quote .attr .t { font-family: var(--mono); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; }
+  .canvas.paper .body.quote .attr .t { color: var(--g-600); }
+  .canvas.dark  .body.quote .attr .t { color: var(--g-600-d); }
+
+  /* Bignum: hook smaller, number huge in center */
+  .body.bignum { justify-content: center; gap: 28px; }
+  .body.bignum .bignum { font-family: var(--font); font-weight: 700; font-size: 300px; line-height: 0.88; letter-spacing: -0.06em; }
+  .body.bignum .numLabel { font-family: var(--font); font-weight: 600; font-size: 36px; letter-spacing: -0.025em; line-height: 1.15; max-width: 800px; }
+  .body.bignum .sub { font-family: var(--font-body); font-size: 20px; line-height: 1.5; max-width: 820px; }
+  .canvas.paper .body.bignum .sub { color: var(--g-600); }
+  .canvas.dark  .body.bignum .sub { color: var(--g-600-d); }
+</style></head>
+<body><div class="canvas paper">
+  <span class="cross" style="top:24px; left:24px;"></span><span class="cross" style="top:24px; right:24px;"></span>
+  <span class="cross" style="bottom:24px; left:24px;"></span><span class="cross" style="bottom:24px; right:24px;"></span>
+  <span class="sig"></span>
+  <div class="top">
+    <span class="l">D27 · Objections · 3 things we hear</span>
+    <span class="pg">P4 · Convert</span>
+  </div>
+  <div class="body list">
+    <h2 class="hook">Three real <em>objections.</em></h2><div class="items"><div class="item"><span class="h">"We already have Azure Advisor."</span><span class="d">They surface 14%. We surface the rest.</span></div><div class="item"><span class="h">"We can't add another vendor."</span><span class="d">Read-only. No agent. Disconnect anytime.</span></div><div class="item"><span class="h">"We're not big enough."</span><span class="d">Smallest estate we run: $4K/mo.</span></div></div>
+  </div>
+  <div class="foot">
+    <span>zop.dev</span>
+    <span>zop.dev · 3-tile carousel</span>
+  </div>
+</div></body></html>
