@@ -30,9 +30,9 @@
   .hero h1 em { font-style: normal; color: var(--zop-orange); }
   .hero .sub { font-family: var(--font); font-weight: 500; font-size: clamp(20px, 2vw, 28px); line-height: 1.3; letter-spacing: -0.025em; color: var(--g-600); max-width: 680px; margin: 0; }
 
-  /* Three-card grid */
-  .picks { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; width: 100%; max-width: 1400px; }
-  @media (max-width: 1100px) { .picks { grid-template-columns: 1fr 1fr; } }
+  /* Four-card grid */
+  .picks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; width: 100%; max-width: 1500px; }
+  @media (max-width: 1280px) { .picks { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 720px)  { .picks { grid-template-columns: 1fr; } }
 
   .pick {
@@ -106,6 +106,9 @@
   .pick.pivot .stripe span:nth-child(odd) { background: var(--zop-orange); }
   .pick.pivot { border-top: 1px solid var(--line); }
   .pick.pivot .day-num em { color: var(--zop-orange); }
+  .pick.examples .stripe span:nth-child(odd) { background: var(--g-500); }
+  .pick.examples .stripe span:nth-child(even) { background: var(--zop-orange); }
+  .pick.examples .day-num em { color: var(--zop-orange); }
 
   /* Lockup */
   .lockup { width: clamp(180px, 18vw, 280px); height: auto; color: var(--ink); }
@@ -144,9 +147,9 @@
 
 <div class="stage">
   <div class="hero">
-    <span class="ev">Three decks · one brand</span>
+    <span class="ev">Four decks · one brand</span>
     <h1>Launch <em>plan.</em></h1>
-    <p class="sub">The week sets the brand. The month turns attention into action. The pivot reframes us as a platform, not a bundle.</p>
+    <p class="sub">The week sets the brand. The month turns attention into action. The pivot reframes us. The examples show what the pivot looks like in your feed.</p>
   </div>
 
   <div class="picks">
@@ -196,7 +199,24 @@
       </div>
       <div class="stripe"><span></span><span></span><span></span><span></span><span></span></div>
       <div class="meta-row">
-        <span class="meta">9 slides · 5 shifts · 30 days</span>
+        <span class="meta">16 slides · 5 shifts · 30 days</span>
+        <span class="cta">Open deck <span class="arrow">→</span></span>
+      </div>
+    </a>
+
+    <!-- Pick · Post examples (before/after) -->
+    <a class="pick examples" href="post-examples.html">
+      <div class="top-row">
+        <span class="day-num"><em>10</em></span>
+        <span class="badge">Examples</span>
+      </div>
+      <div>
+        <div class="title">Before.<br>After.</div>
+        <p class="body-text" style="margin-top: 12px;">Four posts rewritten in the platform frame. Two new posts that only exist after the pivot. Side-by-side, tile-by-tile.</p>
+      </div>
+      <div class="stripe"><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="meta-row">
+        <span class="meta">7 slides · 10 tiles</span>
         <span class="cta">Open deck <span class="arrow">→</span></span>
       </div>
     </a>

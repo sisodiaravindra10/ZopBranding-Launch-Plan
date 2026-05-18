@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>ZopDev · Post examples · pivot in action</title>
+<link rel="stylesheet" href="kit.css">
+<style>
+  html, body { height: 100%; overflow: hidden; background: var(--ink-d); }
+  .deck { display: flex; height: 100vh; overflow-x: scroll; overflow-y: hidden; scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .deck::-webkit-scrollbar { display: none; }
+  .slide { flex: 0 0 100vw; width: 100vw; min-height: 100vh; scroll-snap-align: start; scroll-snap-stop: always; position: relative; overflow-x: hidden; overflow-y: auto; display: flex; flex-direction: column; padding: 48px 64px; scrollbar-width: thin; scrollbar-color: rgba(245,133,73,0.45) transparent; }
+  .slide::-webkit-scrollbar { width: 6px; }
+  .slide::-webkit-scrollbar-thumb { background: rgba(245,133,73,0.45); }
+  .slide.paper { background: var(--paper); color: var(--ink); }
+  .slide.dark  { background: var(--ink-d); color: var(--cream); }
+
+  .strip { display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+  .strip .l, .strip .r { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; }
+  .slide.paper .strip .l, .slide.paper .strip .r { color: var(--g-600); }
+  .slide.dark  .strip .l, .slide.dark  .strip .r { color: var(--g-600-d); }
+  .strip .l { display: inline-flex; align-items: center; gap: 12px; }
+  .strip .l::before { content: ''; width: 10px; height: 10px; background: var(--zop-orange); }
+
+  .body { flex: 1; display: flex; min-height: 0; padding: 24px 0; }
+
+  .ev { font-family: var(--mono); font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+  .ev::before { content: ''; width: 12px; height: 12px; background: var(--zop-orange); }
+  .slide.paper .ev { color: var(--g-600); }
+  .slide.dark .ev { color: var(--g-600-d); }
+  .h1 { font-family: var(--font); font-weight: 700; font-size: clamp(80px, 9vw, 180px); line-height: 0.92; letter-spacing: -0.045em; }
+  .h2 { font-family: var(--font); font-weight: 700; font-size: clamp(48px, 5.4vw, 84px); line-height: 0.98; letter-spacing: -0.04em; }
+  .sub { font-family: var(--font); font-weight: 500; font-size: clamp(22px, 2.2vw, 30px); line-height: 1.3; letter-spacing: -0.025em; }
+  em { font-style: normal; color: var(--zop-orange); }
+
+  /* Cover */
+  .cover { display: flex; flex-direction: column; gap: 28px; max-width: 1400px; margin: auto 0; align-items: flex-start; }
+  .cover .lockup { width: clamp(280px, 30vw, 460px); height: auto; color: var(--ink); }
+  .cover .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; width: 100%; max-width: 980px; margin-top: 8px; }
+  .cover .stats-row .s { padding: 18px 20px; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; }
+  .cover .stats-row .s .k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g-500); }
+  .cover .stats-row .s .v { font-family: var(--font); font-weight: 700; font-size: 36px; letter-spacing: -0.035em; color: var(--ink); line-height: 1; }
+  .cover .stats-row .s .v em { color: var(--zop-orange); }
+
+  /* Pair slide · before/after side-by-side */
+  .pair-head { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 24px; border-bottom: 1px solid currentColor; }
+  .slide.paper .pair-head { border-bottom-color: var(--line); }
+  .slide.dark  .pair-head { border-bottom-color: var(--line-d); }
+  .pair-head .l { display: flex; flex-direction: column; gap: 12px; }
+  .pair-head .l .day-num { font-family: var(--mono); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--zop-orange); }
+  .pair-head .l .title { font-family: var(--font); font-weight: 700; font-size: clamp(48px, 5vw, 80px); line-height: 0.98; letter-spacing: -0.04em; }
+  .pair-head .l .title em { color: var(--zop-orange); }
+  .pair-head .r { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; text-align: right; max-width: 320px; line-height: 1.5; }
+  .slide.paper .pair-head .r { color: var(--g-600); }
+  .slide.dark  .pair-head .r { color: var(--g-600-d); }
+
+  .pair-grid { display: grid; grid-template-columns: 1fr 60px 1fr; gap: 24px; align-items: start; margin-top: 32px; }
+  .pair-grid .tile-block { display: flex; flex-direction: column; gap: 14px; }
+  .pair-grid .tile-block .tag { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 10px; }
+  .pair-grid .tile-block .tag::before { content: ''; width: 8px; height: 8px; background: currentColor; }
+  .pair-grid .tile-block.before .tag { color: var(--g-500); }
+  .slide.dark .pair-grid .tile-block.before .tag { color: var(--g-600-d); }
+  .pair-grid .tile-block.after  .tag { color: var(--zop-orange); }
+  .pair-grid .tile-block .frame { border: 1px solid currentColor; overflow: hidden; aspect-ratio: 4/5; background: var(--paper); }
+  .slide.paper .pair-grid .tile-block .frame { border-color: var(--line); }
+  .slide.dark  .pair-grid .tile-block .frame { border-color: var(--line-d); }
+  .pair-grid .tile-block.after .frame { border-color: var(--zop-orange); }
+  .pair-grid .tile-block .frame img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .pair-grid .tile-block .filename { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .slide.paper .pair-grid .tile-block .filename { color: var(--g-500); }
+  .slide.dark  .pair-grid .tile-block .filename { color: var(--g-600-d); }
+  .pair-grid .arrow { display: flex; align-items: center; justify-content: center; padding-top: 32%; }
+  .pair-grid .arrow span { font-family: var(--mono); font-weight: 700; font-size: 32px; color: var(--zop-orange); }
+
+  .pair-note { margin-top: 32px; padding-top: 24px; border-top: 1px solid currentColor; }
+  .slide.paper .pair-note { border-top-color: var(--line); }
+  .slide.dark  .pair-note { border-top-color: var(--line-d); }
+  .pair-note p { font-family: var(--font); font-weight: 500; font-size: 22px; line-height: 1.4; letter-spacing: -0.02em; max-width: 1100px; }
+  .pair-note p em { color: var(--zop-orange); }
+  .slide.paper .pair-note p { color: var(--g-700); }
+  .slide.dark  .pair-note p { color: var(--g-600-d); }
+
+  /* New-posts slide · two new tiles side by side */
+  .new-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 32px; }
+  .new-grid .tile-block { display: flex; flex-direction: column; gap: 14px; }
+  .new-grid .tile-block .tag { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--zop-orange); display: inline-flex; align-items: center; gap: 10px; }
+  .new-grid .tile-block .tag::before { content: ''; width: 8px; height: 8px; background: var(--zop-orange); }
+  .new-grid .tile-block .frame { border: 1px solid var(--zop-orange); overflow: hidden; aspect-ratio: 4/5; }
+  .new-grid .tile-block .frame img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .new-grid .tile-block .desc { font-family: var(--font); font-weight: 500; font-size: 20px; line-height: 1.35; letter-spacing: -0.02em; }
+  .slide.paper .new-grid .tile-block .desc { color: var(--g-700); }
+  .slide.dark  .new-grid .tile-block .desc { color: var(--g-600-d); }
+  .new-grid .tile-block .desc em { color: var(--zop-orange); }
+  .new-grid .tile-block .filename { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .slide.paper .new-grid .tile-block .filename { color: var(--g-500); }
+  .slide.dark  .new-grid .tile-block .filename { color: var(--g-600-d); }
+
+  /* End slide */
+  .end-stack { display: flex; flex-direction: column; gap: 28px; align-items: center; text-align: center; max-width: 1100px; margin: auto 0; }
+  .end-stack .h1 { color: var(--cream); }
+  .end-stack .h1 em { color: var(--zop-orange); }
+  .end-stack .sub { color: var(--g-600-d); max-width: 800px; }
+
+  /* Nav controls */
+  .nav-controls { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; background: rgba(15,15,18,0.94); color: var(--cream); padding: 10px 16px; border: 1px solid var(--line-d); font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; z-index: 50; backdrop-filter: blur(8px); }
+  .nav-controls button { background: transparent; border: 1px solid var(--g-600-d); color: var(--cream); width: 32px; height: 26px; cursor: pointer; font-family: inherit; font-size: 13px; }
+  .nav-controls button:hover { border-color: var(--zop-orange); color: var(--zop-orange); }
+  .nav-controls .pos { display: inline-flex; gap: 5px; align-items: baseline; min-width: 64px; justify-content: center; }
+  .nav-controls .pos b { color: var(--zop-orange); font-weight: 500; }
+  .progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--zop-orange); width: 0; z-index: 50; transition: width 200ms cubic-bezier(0.22,1,0.36,1); }
+  .hint { position: fixed; top: 14px; right: 14px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g-600-d); z-index: 40; padding: 5px 9px; border: 1px solid var(--line-d); background: rgba(15,15,18,0.6); }
+
+  /* Crosshairs */
+  .cross-tl, .cross-tr, .cross-bl, .cross-br { position: absolute; width: 8px; height: 8px; opacity: 0.4; }
+  .cross-tl { top: 20px; left: 20px; } .cross-tr { top: 20px; right: 20px; }
+  .cross-bl { bottom: 20px; left: 20px; } .cross-br { bottom: 20px; right: 20px; }
+  .cross-tl::before, .cross-tr::before, .cross-bl::before, .cross-br::before,
+  .cross-tl::after, .cross-tr::after, .cross-bl::after, .cross-br::after { content: ''; position: absolute; background: currentColor; }
+  .cross-tl::before, .cross-tr::before, .cross-bl::before, .cross-br::before { left: 0; right: 0; top: 50%; height: 1px; }
+  .cross-tl::after, .cross-tr::after, .cross-bl::after, .cross-br::after { top: 0; bottom: 0; left: 50%; width: 1px; }
+  .slide.paper [class^="cross-"] { color: var(--line); }
+  .slide.dark  [class^="cross-"] { color: var(--line-d); }
+</style></head>
+
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="logo-zopdev" viewBox="0 0 715 276">
+      <path d="M7.452 229V201.784L63.504 137.308V134.716H9.072V115.6H85.86V142.816L29.808 207.292V209.884H86.184V229H7.452ZM136.786 231.268C128.794 231.268 121.612 229.648 115.24 226.408C108.868 223.168 103.846 218.47 100.174 212.314C96.5022 206.158 94.6662 198.76 94.6662 190.12V187.528C94.6662 178.888 96.5022 171.49 100.174 165.334C103.846 159.178 108.868 154.48 115.24 151.24C121.612 148 128.794 146.38 136.786 146.38C144.778 146.38 151.96 148 158.332 151.24C164.704 154.48 169.726 159.178 173.398 165.334C177.07 171.49 178.906 178.888 178.906 187.528V190.12C178.906 198.76 177.07 206.158 173.398 212.314C169.726 218.47 164.704 223.168 158.332 226.408C151.96 229.648 144.778 231.268 136.786 231.268ZM136.786 213.124C143.05 213.124 148.234 211.126 152.338 207.13C156.442 203.026 158.494 197.194 158.494 189.634V188.014C158.494 180.454 156.442 174.676 152.338 170.68C148.342 166.576 143.158 164.524 136.786 164.524C130.522 164.524 125.338 166.576 121.234 170.68C117.13 174.676 115.078 180.454 115.078 188.014V189.634C115.078 197.194 117.13 203.026 121.234 207.13C125.338 211.126 130.522 213.124 136.786 213.124ZM192.888 261.4V148.648H212.976V158.368H215.892C217.728 155.236 220.59 152.482 224.478 150.106C228.366 147.622 233.928 146.38 241.164 146.38C247.644 146.38 253.638 148 259.146 151.24C264.654 154.372 269.082 159.016 272.43 165.172C275.778 171.328 277.452 178.78 277.452 187.528V190.12C277.452 198.868 275.778 206.32 272.43 212.476C269.082 218.632 264.654 223.33 259.146 226.57C253.638 229.702 247.644 231.268 241.164 231.268C236.304 231.268 232.2 230.674 228.852 229.486C225.612 228.406 222.966 227.002 220.914 225.274C218.97 223.438 217.404 221.602 216.216 219.766H213.3V261.4H192.888ZM235.008 213.448C241.38 213.448 246.618 211.45 250.722 207.454C254.934 203.35 257.04 197.41 257.04 189.634V188.014C257.04 180.238 254.934 174.352 250.722 170.356C246.51 166.252 241.272 164.2 235.008 164.2C228.744 164.2 223.506 166.252 219.294 170.356C215.082 174.352 212.976 180.238 212.976 188.014V189.634C212.976 197.41 215.082 203.35 219.294 207.454C223.506 211.45 228.744 213.448 235.008 213.448ZM287.446 229V210.208H302.35V134.392H287.446V115.6H334.102C349.33 115.6 360.886 119.488 368.77 127.264C376.762 134.932 380.758 146.38 380.758 161.608V182.992C380.758 198.22 376.762 209.722 368.77 217.498C360.886 225.166 349.33 229 334.102 229H287.446ZM323.734 209.56H334.426C343.066 209.56 349.384 207.292 353.38 202.756C357.376 198.22 359.374 191.848 359.374 183.64V160.96C359.374 152.644 357.376 146.272 353.38 141.844C349.384 137.308 343.066 135.04 334.426 135.04H323.734V209.56ZM430.981 231.268C422.989 231.268 415.915 229.594 409.759 226.246C403.711 222.79 398.959 217.984 395.503 211.828C392.155 205.564 390.481 198.22 390.481 189.796V187.852C390.481 179.428 392.155 172.138 395.503 165.982C398.851 159.718 403.549 154.912 409.597 151.564C415.645 148.108 422.665 146.38 430.657 146.38C438.541 146.38 445.399 148.162 451.231 151.726C457.063 155.182 461.599 160.042 464.839 166.306C468.079 172.462 469.699 179.644 469.699 187.852V194.818H411.217C411.433 200.326 413.485 204.808 417.373 208.264C421.261 211.72 426.013 213.448 431.629 213.448C437.353 213.448 441.565 212.206 444.265 209.722C446.965 207.238 449.017 204.484 450.421 201.46L467.107 210.208C465.595 213.016 463.381 216.094 460.465 219.442C457.657 222.682 453.877 225.49 449.125 227.866C444.373 230.134 438.325 231.268 430.981 231.268ZM411.379 179.59H448.963C448.531 174.946 446.641 171.22 443.293 168.412C440.053 165.604 435.787 164.2 430.495 164.2C424.987 164.2 420.613 165.604 417.373 168.412C414.133 171.22 412.135 174.946 411.379 179.59ZM497.482 229L471.886 148.648H493.594L512.224 214.096H515.14L533.77 148.648H555.478L529.882 229H497.482Z" fill="currentColor"/>
+      <rect x="537" y="0" width="89" height="89" fill="#2A4494"/>
+      <rect x="626" y="0" width="89" height="89" fill="#F58549"/>
+      <rect x="626" y="89" width="89" height="89" fill="#7FB236"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="progress" id="progress"></div>
+<div class="hint">← → · keyboard nav · scroll to advance</div>
+
+<div class="nav-controls">
+  <button id="prev" aria-label="Previous slide">←</button>
+  <span class="pos"><b id="cur">01</b> / <span id="tot">07</span></span>
+  <button id="next" aria-label="Next slide">→</button>
+</div>
+
+<div class="deck" id="deck">
+
+  <!-- 01 · COVER -->
+  <section class="slide paper">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">§ · Post examples · pivot in action · 05.2026</span><span class="r">01 / 07 · Cover</span></div>
+    <div class="body">
+      <div class="cover">
+        <span class="ev">Posts in pivot</span>
+        <h1 class="h1">Before.<br><em>After.</em></h1>
+        <p class="sub" style="color: var(--g-600); max-width: 920px;">Four existing posts, rewritten in the platform frame. Plus two new post concepts that only exist after the pivot.</p>
+        <div class="stats-row">
+          <div class="s"><span class="k">Before/after pairs</span><span class="v"><em>04</em></span></div>
+          <div class="s"><span class="k">New post concepts</span><span class="v"><em>02</em></span></div>
+          <div class="s"><span class="k">Total tiles</span><span class="v"><em>10</em></span></div>
+        </div>
+        <svg style="width: clamp(220px, 24vw, 380px); height: auto; color: var(--ink); margin-top: 12px;" viewBox="0 0 715 276" aria-label="ZopDev"><use href="#logo-zopdev"/></svg>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ D4 · Product depth</span></div>
+  </section>
+
+  <!-- 02 · D4 PAIR -->
+  <section class="slide paper">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">Pair 01 · D4 · Product depth</span><span class="r">02 / 07</span></div>
+    <div class="body" style="flex-direction: column;">
+      <div class="pair-head">
+        <div class="l">
+          <span class="day-num">D4 · Pivot 01</span>
+          <span class="title">Feature catalog → <em>outcome.</em></span>
+        </div>
+        <span class="r">A five-minute audit is real.<br>What changes is <em>what we say it does.</em></span>
+      </div>
+      <div class="pair-grid">
+        <div class="tile-block before">
+          <span class="tag">Before · feature stack</span>
+          <div class="frame"><img src="ex_d4_before.png" alt="D4 before · feature stack"></div>
+          <span class="filename">ex_d4_before.png</span>
+        </div>
+        <div class="arrow"><span>→</span></div>
+        <div class="tile-block after">
+          <span class="tag">After · outcome stack</span>
+          <div class="frame"><img src="ex_d4_after.png" alt="D4 after · outcome stack"></div>
+          <span class="filename">ex_d4_after.png</span>
+        </div>
+      </div>
+      <div class="pair-note">
+        <p>"What ZopNight has" reads like a spec sheet. "Your cloud, right-sized at 8am" reads like <em>a change in your life.</em> Same product. Different sentence. The CEO wants the second one.</p>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ D6 · Proof</span></div>
+  </section>
+
+  <!-- 03 · D6 PAIR -->
+  <section class="slide paper">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">Pair 02 · D6 · Proof</span><span class="r">03 / 07</span></div>
+    <div class="body" style="flex-direction: column;">
+      <div class="pair-head">
+        <div class="l">
+          <span class="day-num">D6 · Pivot 02</span>
+          <span class="title">Stats catalog → <em>ground claim.</em></span>
+        </div>
+        <span class="r">The numbers stay.<br>The <em>frame</em> changes.</span>
+      </div>
+      <div class="pair-grid">
+        <div class="tile-block before">
+          <span class="tag">Before · feature inventory</span>
+          <div class="frame"><img src="ex_d6_before.png" alt="D6 before · stats catalog"></div>
+          <span class="filename">ex_d6_before.png</span>
+        </div>
+        <div class="arrow"><span>→</span></div>
+        <div class="tile-block after">
+          <span class="tag">After · platform ground</span>
+          <div class="frame"><img src="ex_d6_after.png" alt="D6 after · ground claim"></div>
+          <span class="filename">ex_d6_after.png</span>
+        </div>
+      </div>
+      <div class="pair-note">
+        <p>"$15M+ · 154 teams · 5 of top 20 FMCG" lists features. "Where 154 teams operate today" claims <em>ground.</em> Vendors list. Platforms own.</p>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ D18 · India SaaS</span></div>
+  </section>
+
+  <!-- 04 · D18 PAIR -->
+  <section class="slide dark">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">Pair 03 · D18 · India SaaS</span><span class="r">04 / 07</span></div>
+    <div class="body" style="flex-direction: column;">
+      <div class="pair-head">
+        <div class="l">
+          <span class="day-num" style="color: var(--zop-orange);">D18 · Pivot 03</span>
+          <span class="title" style="color: var(--cream);">Critique → <em>claim.</em></span>
+        </div>
+        <span class="r" style="color: var(--g-600-d);">Complaining about US tools is a tactic.<br>Naming the new category is <em>a strategy.</em></span>
+      </div>
+      <div class="pair-grid">
+        <div class="tile-block before">
+          <span class="tag">Before · feature critique</span>
+          <div class="frame"><img src="ex_d18_before.png" alt="D18 before · feature critique"></div>
+          <span class="filename">ex_d18_before.png</span>
+        </div>
+        <div class="arrow"><span>→</span></div>
+        <div class="tile-block after">
+          <span class="tag">After · category claim</span>
+          <div class="frame"><img src="ex_d18_after.png" alt="D18 after · category claim"></div>
+          <span class="filename">ex_d18_after.png</span>
+        </div>
+      </div>
+      <div class="pair-note">
+        <p>"US tools assume X, Y, Z" defines you in opposition. "CloudOps is the category we are creating" defines the category. <em>Same insight. Sharper end.</em></p>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ D25 · Founder offer</span></div>
+  </section>
+
+  <!-- 05 · D25 PAIR -->
+  <section class="slide paper">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">Pair 04 · D25 · Founder offer</span><span class="r">05 / 07</span></div>
+    <div class="body" style="flex-direction: column;">
+      <div class="pair-head">
+        <div class="l">
+          <span class="day-num">D25 · Pivot 04</span>
+          <span class="title">Audit pitch → <em>platform pitch.</em></span>
+        </div>
+        <span class="r">Same offer.<br><em>Higher stakes</em> for the prospect.</span>
+      </div>
+      <div class="pair-grid">
+        <div class="tile-block before">
+          <span class="tag">Before · audit pitch</span>
+          <div class="frame"><img src="ex_d25_before.png" alt="D25 before · audit pitch"></div>
+          <span class="filename">ex_d25_before.png</span>
+        </div>
+        <div class="arrow"><span>→</span></div>
+        <div class="tile-block after">
+          <span class="tag">After · platform pitch</span>
+          <div class="frame"><img src="ex_d25_after.png" alt="D25 after · platform pitch"></div>
+          <span class="filename">ex_d25_after.png</span>
+        </div>
+      </div>
+      <div class="pair-note">
+        <p>"Free audit" is a deliverable. "A walk-through of your operating layer" is <em>a platform decision.</em> The conversation goes from feature value to category fit.</p>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ New post concepts</span></div>
+  </section>
+
+  <!-- 06 · NEW POSTS -->
+  <section class="slide dark">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">New · two posts that only exist after the pivot</span><span class="r">06 / 07</span></div>
+    <div class="body" style="flex-direction: column;">
+      <div class="pair-head" style="border-bottom-color: var(--line-d);">
+        <div class="l">
+          <span class="day-num" style="color: var(--zop-orange);">NEW · Post 05 + 06</span>
+          <span class="title" style="color: var(--cream);">Posts the old framing<br>could <em>not write.</em></span>
+        </div>
+        <span class="r" style="color: var(--g-600-d);">A category-defining post.<br>And a stitched-stack-vs-platform claim.</span>
+      </div>
+      <div class="new-grid">
+        <div class="tile-block">
+          <span class="tag">New · CloudOps category</span>
+          <div class="frame"><img src="ex_new_cloudops.png" alt="New · CloudOps category"></div>
+          <p class="desc">A founder post that <em>names the category</em>. DevOps had its moment. FinOps had its moment. CloudOps is our moment to claim.</p>
+          <span class="filename">ex_new_cloudops.png</span>
+        </div>
+        <div class="tile-block">
+          <span class="tag">New · 14 tools or 1 platform</span>
+          <div class="frame"><img src="ex_new_14tools.png" alt="New · 14 tools or 1 platform"></div>
+          <p class="desc">A company carousel that <em>names the stitched stack</em> by name. Vantage, CloudHealth, Spacelift, Backstage, Datadog, Wiz. Then: or ZopDev.</p>
+          <span class="filename">ex_new_14tools.png</span>
+        </div>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">→ End</span></div>
+  </section>
+
+  <!-- 07 · END -->
+  <section class="slide dark">
+    <span class="cross-tl"></span><span class="cross-tr"></span><span class="cross-bl"></span><span class="cross-br"></span>
+    <div class="strip"><span class="l">End · Post examples · 05.2026</span><span class="r">07 / 07</span></div>
+    <div class="body" style="align-items: center; justify-content: center;">
+      <div class="end-stack">
+        <span class="ev">Four pivots. Two new posts. One brand.</span>
+        <h1 class="h1">Same insight.<br><em>Sharper end.</em></h1>
+        <p class="sub">Use these as templates. Every post can either describe a feature or claim a place. Pick the second one. The CEO is right.</p>
+        <svg style="width: 220px; height: auto; color: var(--cream); margin-top: 12px;" viewBox="0 0 715 276" aria-label="ZopDev"><use href="#logo-zopdev"/></svg>
+      </div>
+    </div>
+    <div class="strip"><span class="l">zop.dev</span><span class="r">— End of brief —</span></div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  var deck = document.getElementById('deck');
+  var slides = deck.querySelectorAll('.slide');
+  var total = slides.length;
+  document.getElementById('tot').textContent = String(total).padStart(2, '0');
+  var cur = document.getElementById('cur');
+  var bar = document.getElementById('progress');
+
+  function update(){
+    var i = Math.round(deck.scrollLeft / window.innerWidth);
+    i = Math.max(0, Math.min(total - 1, i));
+    cur.textContent = String(i + 1).padStart(2, '0');
+    bar.style.width = ((i + 1) / total * 100) + '%';
+  }
+  function go(delta){
+    var i = Math.round(deck.scrollLeft / window.innerWidth);
+    var next = Math.max(0, Math.min(total - 1, i + delta));
+    deck.scrollTo({ left: slides[next].offsetLeft, behavior: 'smooth' });
+  }
+  document.getElementById('prev').addEventListener('click', function(){ go(-1); });
+  document.getElementById('next').addEventListener('click', function(){ go(1); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); go(1); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(-1); }
+    if (e.key === 'Home') { e.preventDefault(); deck.scrollTo({ left: 0, behavior: 'smooth' }); }
+    if (e.key === 'End') { e.preventDefault(); deck.scrollTo({ left: slides[total-1].offsetLeft, behavior: 'smooth' }); }
+  });
+  deck.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+
+  var match = window.location.search.match(/[?&]s=(\d+)/);
+  if (match) {
+    var target = Math.max(1, Math.min(total, parseInt(match[1], 10))) - 1;
+    deck.style.scrollBehavior = 'auto';
+    function pin(){ deck.scrollLeft = slides[target].offsetLeft; update(); }
+    pin(); requestAnimationFrame(pin);
+    setTimeout(pin, 100); setTimeout(pin, 500);
+    setTimeout(function(){ deck.style.scrollBehavior = 'smooth'; pin(); }, 1500);
+  } else {
+    update();
+  }
+})();
+</script>
+
+</body></html>
